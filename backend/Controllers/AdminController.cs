@@ -84,5 +84,20 @@ namespace BackendApi.Controllers
 
             return Ok(new { Message = $"User is now {(dto.IsActive ? "Active" : "Inactive")}.", IsActive = user.IsActive });
         }
+
+        // 4. POST /api/admin/seed — on-demand massive enterprise-grade seeder trigger
+        [HttpPost("seed")]
+        public async Task<IActionResult> TriggerMassiveSeed()
+        {
+            try
+            {
+                await DbSeeder.SeedAllAsync(_context);
+                return Ok(new { Message = "Massive 500-item enterprise-grade dataset successfully injected into database!" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Massive seeding failed: {ex.Message}");
+            }
+        }
     }
 }

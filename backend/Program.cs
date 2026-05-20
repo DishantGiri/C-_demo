@@ -61,7 +61,7 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// ── Startup Seeder: ensure admin account is valid ──────────────────────────
+// ── Startup Seeder: ensure admin account is valid & massive dataset seeded ──
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -96,6 +96,16 @@ using (var scope = app.Services.CreateScope())
     else
     {
         Console.WriteLine("[Seeder] Admin account OK.");
+    }
+
+    // Check user density. If less than 15, trigger our premium enterprise seeder (500 records per section)
+    if (await db.Users.CountAsync() < 15)
+    {
+        await DbSeeder.SeedAllAsync(db);
+    }
+    else
+    {
+        Console.WriteLine("[Seeder] Massive enterprise dataset already present. Bypassing.");
     }
 }
 // ───────────────────────────────────────────────────────────────────────────
