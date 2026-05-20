@@ -105,7 +105,6 @@ export default function AdminUsersDashboard() {
       });
 
       if (response.ok) {
-        // Update local list
         setUsers(prev => prev.map(u => u.id === userId ? { ...u, isActive: !currentStatus } : u));
       } else {
         alert('Failed to update status.');
@@ -160,10 +159,8 @@ export default function AdminUsersDashboard() {
         setStaffPhone('');
         setStaffPassword('');
         
-        // Refresh users list
         await fetchUsers(token);
         
-        // Auto-close modal after 1.5 seconds
         setTimeout(() => {
           setShowModal(false);
           setModalSuccess('');
@@ -209,122 +206,104 @@ export default function AdminUsersDashboard() {
   const totalPages = Math.ceil(filteredUsers.length / PAGE_SIZE);
 
   return (
-    <div className="admin-portal-wrapper">
+    <div className="admin-page">
       {/* Top Banner Navigation */}
-      <header className="admin-portal-header">
-        <div className="admin-header-container">
-          <div className="admin-logo-group">
-            <Link href="/" className="admin-back-btn">
-              <ArrowLeft size={18} />
+      <header className="page-header" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '2.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>
+            <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '0.5rem', textDecoration: 'none' }}>
+              <ArrowLeft size={16} />
               <span>Back to Site</span>
             </Link>
-            <h1>Redline Auto Garage <span className="red-badge">Admin Panel</span></h1>
+            <h1 className="page-header-title">User Directory</h1>
+            <p className="page-header-text">Manage employee access privileges and customer portal accounts.</p>
           </div>
           
-          <div style={{ display: 'flex', gap: '1.2rem', alignItems: 'center', flexWrap: 'wrap' }}>
-            <Link href="/admin/users" style={{ color: 'var(--primary-accent)', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>
-              Users
-            </Link>
-            <span style={{ color: 'rgba(255,255,255,0.15)' }}>|</span>
-            <Link href="/admin/parts" style={{ color: 'var(--text-secondary)', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>
-              Parts & Invoices
-            </Link>
-            <span style={{ color: 'rgba(255,255,255,0.15)' }}>|</span>
-            <Link href="/admin/vendors" style={{ color: 'var(--text-secondary)', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>
-              Vendors
-            </Link>
-            <span style={{ color: 'rgba(255,255,255,0.15)' }}>|</span>
-            <Link href="/admin/reports" style={{ color: 'var(--text-secondary)', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>
-              Financial Reports
-            </Link>
-          </div>
-
-          <div className="admin-user-info">
-            <Shield size={18} className="shield-icon" />
-            <span>Administrator Portal</span>
+          <div style={{ display: 'flex', gap: '1rem', backgroundColor: 'var(--secondary-bg)', padding: '0.5rem 1rem', borderRadius: '1rem', border: '1px solid var(--borders)' }}>
+            <Link href="/admin/users" style={{ color: 'var(--primary-accent)', fontWeight: 800, textDecoration: 'none', fontSize: '0.85rem' }}>Users</Link>
+            <span style={{ color: 'var(--borders)' }}>|</span>
+            <Link href="/admin/parts" style={{ color: 'var(--text-secondary)', fontWeight: 600, textDecoration: 'none', fontSize: '0.85rem' }}>Parts</Link>
+            <span style={{ color: 'var(--borders)' }}>|</span>
+            <Link href="/admin/vendors" style={{ color: 'var(--text-secondary)', fontWeight: 600, textDecoration: 'none', fontSize: '0.85rem' }}>Vendors</Link>
+            <span style={{ color: 'var(--borders)' }}>|</span>
+            <Link href="/admin/reports" style={{ color: 'var(--text-secondary)', fontWeight: 600, textDecoration: 'none', fontSize: '0.85rem' }}>Financials</Link>
           </div>
         </div>
       </header>
 
       {/* Main Content Dashboard */}
-      <main className="admin-main-container">
+      <main>
         {error ? (
-          <div className="admin-error-card">
-            <h2>Access Restriction</h2>
-            <p>{error}</p>
-            <Link href="/login" className="admin-login-redirect">Go to Login</Link>
+          <div className="card empty-state" style={{ maxWidth: '480px', margin: '4rem auto' }}>
+            <div className="empty-state-icon"><XCircle size={40} /></div>
+            <h2 className="empty-state-title">Access Restriction</h2>
+            <p className="empty-state-text" style={{ marginBottom: '1.5rem' }}>{error}</p>
+            <Link href="/login" className="btn-primary">Go to Login</Link>
           </div>
         ) : loading ? (
-          <div className="admin-loading-screen">
-            <Loader2 className="loading-spinner" />
-            <p>Loading User Administration...</p>
+          <div className="card empty-state" style={{ minHeight: '300px' }}>
+            <Loader2 className="animate-spin" size={40} style={{ color: 'var(--primary-accent)', marginBottom: '1rem' }} />
+            <p className="card-eyebrow">Loading User Directory...</p>
           </div>
         ) : (
           <>
             {/* Stats Dashboard Grid */}
-            <div className="admin-stats-grid">
-              <div className="admin-stat-card">
-                <div className="stat-icon-box blue">
-                  <Users size={24} />
-                </div>
-                <div className="stat-info">
-                  <h3>{totalCustomers}</h3>
-                  <p>TOTAL CUSTOMERS</p>
+            <div className="grid-stats" style={{ marginBottom: '2.5rem' }}>
+              <div className="card p-7" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                <div className="stat-card-icon-wrap"><Users size={24} /></div>
+                <div>
+                  <span className="card-eyebrow">Customers</span>
+                  <h3 className="card-title" style={{ fontSize: '1.75rem', marginTop: '0.25rem' }}>{totalCustomers}</h3>
                 </div>
               </div>
 
-              <div className="admin-stat-card">
-                <div className="stat-icon-box purple">
-                  <Shield size={24} />
-                </div>
-                <div className="stat-info">
-                  <h3>{totalStaff}</h3>
-                  <p>STAFF MEMBERS</p>
+              <div className="card p-7" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                <div className="stat-card-icon-wrap"><Shield size={24} /></div>
+                <div>
+                  <span className="card-eyebrow">Staff Members</span>
+                  <h3 className="card-title" style={{ fontSize: '1.75rem', marginTop: '0.25rem' }}>{totalStaff}</h3>
                 </div>
               </div>
 
-              <div className="admin-stat-card">
-                <div className="stat-icon-box green">
-                  <CheckCircle size={24} />
-                </div>
-                <div className="stat-info">
-                  <h3>{activeCount}</h3>
-                  <p>ACTIVE ACCOUNTS</p>
+              <div className="card p-7" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                <div className="stat-card-icon-wrap"><CheckCircle size={24} /></div>
+                <div>
+                  <span className="card-eyebrow">Active Accounts</span>
+                  <h3 className="card-title" style={{ fontSize: '1.75rem', marginTop: '0.25rem' }}>{activeCount}</h3>
                 </div>
               </div>
 
-              <div className="admin-stat-card">
-                <div className="stat-icon-box red">
-                  <XCircle size={24} />
-                </div>
-                <div className="stat-info">
-                  <h3>{inactiveCount}</h3>
-                  <p>INACTIVE ACCOUNTS</p>
+              <div className="card p-7" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                <div className="stat-card-icon-wrap" style={{ borderColor: 'rgba(239,68,68,0.3)', backgroundColor: 'rgba(239,68,68,0.1)', color: '#ef4444' }}><XCircle size={24} /></div>
+                <div>
+                  <span className="card-eyebrow">Inactive Accounts</span>
+                  <h3 className="card-title" style={{ fontSize: '1.75rem', marginTop: '0.25rem' }}>{inactiveCount}</h3>
                 </div>
               </div>
             </div>
 
             {/* User Control & Search Bar */}
-            <div className="admin-controls-card">
-              <div className="search-and-filters">
-                <div className="search-box-wrapper">
-                  <Search size={18} className="search-icon" />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem', marginBottom: '2rem' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', flex: 1, minWidth: '280px' }}>
+                <div className="admin-search" style={{ flex: 1, minWidth: '240px' }}>
+                  <Search size={18} className="admin-search-icon" />
                   <input 
                     type="text" 
+                    className="admin-search-input"
                     placeholder="Search by name, email, or phone..." 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
 
-                <div className="filter-select-group">
-                  <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <select className="form-select" style={{ padding: '0.75rem 1.25rem', borderRadius: '0.75rem' }} value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}>
                     <option value="All">All Roles</option>
                     <option value="Customer">Customers</option>
                     <option value="Staff">Staff</option>
                   </select>
 
-                  <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+                  <select className="form-select" style={{ padding: '0.75rem 1.25rem', borderRadius: '0.75rem' }} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                     <option value="All">All Statuses</option>
                     <option value="Active">Active</option>
                     <option value="Inactive">Inactive</option>
@@ -332,99 +311,99 @@ export default function AdminUsersDashboard() {
                 </div>
               </div>
 
-              <button className="create-staff-btn" onClick={() => setShowModal(true)}>
+              <button className="btn-primary" style={{ padding: '0.85rem 1.5rem', borderRadius: '0.75rem' }} onClick={() => setShowModal(true)}>
                 <UserPlus size={18} />
-                <span>Create New Staff</span>
+                <span>Create Staff Account</span>
               </button>
             </div>
 
             {/* Users Listing Table */}
-            <div className="users-table-card">
-              <h2>User Management Directory</h2>
-              <div className="table-responsive-wrapper">
-                <table className="users-dashboard-table">
-                  <thead>
+            <div className="card p-7" style={{ overflowX: 'auto' }}>
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>User Info</th>
+                    <th>Email Address</th>
+                    <th>Phone Number</th>
+                    <th>System Role</th>
+                    <th>Account Status</th>
+                    <th style={{ textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredUsers.length === 0 ? (
                     <tr>
-                      <th>User Info</th>
-                      <th>Email Address</th>
-                      <th>Phone Number</th>
-                      <th>System Role</th>
-                      <th>Account Status</th>
-                      <th style={{ textAlign: 'right' }}>Actions</th>
+                      <td colSpan={6} style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>
+                        No registered users found matching the selected filters.
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {filteredUsers.length === 0 ? (
-                      <tr>
-                        <td colSpan={6} className="table-empty-row">
-                          No registered users found matching the selected filters.
+                  ) : (
+                    paginatedUsers.map((user) => (
+                      <tr key={user.id}>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '50%', backgroundColor: 'var(--secondary-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', border: '1px solid var(--borders)' }}>
+                              {user.username.substring(0, 2).toUpperCase()}
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                              <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{user.username}</span>
+                              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>ID: #{user.id}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <Mail size={14} style={{ color: 'var(--primary-accent)' }} />
+                            <span>{user.email}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <Phone size={14} style={{ color: 'var(--primary-accent)' }} />
+                            <span>{user.phoneNumber || 'N/A'}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <span className={`admin-badge admin-badge-${user.role.toLowerCase()}`}>
+                            {user.role}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={`admin-badge ${user.isActive ? 'admin-badge-active' : 'admin-badge-inactive'}`}>
+                            {user.isActive ? 'Active' : 'Inactive'}
+                          </span>
+                        </td>
+                        <td style={{ textAlign: 'right' }}>
+                          <button 
+                            className="admin-action-btn"
+                            onClick={() => handleToggleActive(user.id, user.isActive)}
+                            disabled={actionLoading === user.id}
+                          >
+                            {actionLoading === user.id ? (
+                              <Loader2 className="animate-spin" size={14} />
+                            ) : (
+                              <>
+                                <Power size={14} />
+                                <span>{user.isActive ? 'Deactivate' : 'Activate'}</span>
+                              </>
+                            )}
+                          </button>
                         </td>
                       </tr>
-                    ) : (
-                      paginatedUsers.map((user) => (
-                        <tr key={user.id} className={!user.isActive ? 'inactive-row' : ''}>
-                          <td>
-                            <div className="user-profile-meta">
-                              <div className={`avatar-initials ${user.role.toLowerCase()}`}>
-                                {user.username.substring(0, 2).toUpperCase()}
-                              </div>
-                              <div className="meta-text">
-                                <span className="username">{user.username}</span>
-                                <span className="user-id">ID: #{user.id}</span>
-                              </div>
-                            </div>
-                          </td>
-                          <td>
-                            <div className="email-meta">
-                              <Mail size={14} className="meta-icon" />
-                              <span>{user.email}</span>
-                            </div>
-                          </td>
-                          <td>
-                            <div className="phone-meta">
-                              <Phone size={14} className="meta-icon" />
-                              <span>{user.phoneNumber || 'N/A'}</span>
-                            </div>
-                          </td>
-                          <td>
-                            <span className={`role-badge ${user.role.toLowerCase()}`}>
-                              {user.role}
-                            </span>
-                          </td>
-                          <td>
-                            <span className={`status-pill ${user.isActive ? 'active' : 'inactive'}`}>
-                              {user.isActive ? 'Active' : 'Inactive'}
-                            </span>
-                          </td>
-                          <td style={{ textAlign: 'right' }}>
-                            <button 
-                              className={`toggle-status-btn ${user.isActive ? 'deactivate' : 'activate'}`}
-                              onClick={() => handleToggleActive(user.id, user.isActive)}
-                              disabled={actionLoading === user.id}
-                            >
-                              {actionLoading === user.id ? (
-                                <Loader2 className="btn-spinner" />
-                              ) : (
-                                <>
-                                  <Power size={14} />
-                                  <span>{user.isActive ? 'Deactivate' : 'Activate'}</span>
-                                </>
-                              )}
-                            </button>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                    ))
+                  )}
+                </tbody>
+              </table>
+              
+              <div style={{ marginTop: '1.5rem' }}>
+                <Pagination
+                  currentPage={page}
+                  totalPages={totalPages}
+                  onPageChange={p => setPage(p)}
+                  pageSize={PAGE_SIZE}
+                  totalItems={filteredUsers.length}
+                />
               </div>
-              <Pagination
-                currentPage={page}
-                totalPages={totalPages}
-                onPageChange={p => setPage(p)}
-                pageSize={PAGE_SIZE}
-                totalItems={filteredUsers.length}
-              />
             </div>
           </>
         )}
@@ -432,78 +411,78 @@ export default function AdminUsersDashboard() {
 
       {/* Create Staff Modal */}
       {showModal && (
-        <div className="staff-modal-overlay">
-          <div className="staff-modal-content">
-            <div className="modal-header">
-              <h2>Create Staff Account</h2>
-              <button className="close-modal-btn" onClick={() => setShowModal(false)}>&times;</button>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 100, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
+          <div className="card p-9" style={{ width: '100%', maxWidth: '28rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+              <h2 className="card-title" style={{ fontSize: '1.5rem' }}>Create Staff</h2>
+              <button style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.5rem', cursor: 'pointer' }} onClick={() => setShowModal(false)}>&times;</button>
             </div>
             
-            {modalError && <div className="modal-error-message">{modalError}</div>}
-            {modalSuccess && <div className="modal-success-message">{modalSuccess}</div>}
+            {modalError && (
+              <div style={{ color: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)', padding: '0.75rem 1rem', borderRadius: '0.75rem', fontSize: '0.85rem', marginBottom: '1.5rem', border: '1px solid rgba(239,68,68,0.2)' }}>
+                {modalError}
+              </div>
+            )}
+            {modalSuccess && (
+              <div style={{ color: '#22c55e', backgroundColor: 'rgba(34,197,94,0.1)', padding: '0.75rem 1rem', borderRadius: '0.75rem', fontSize: '0.85rem', marginBottom: '1.5rem', border: '1px solid rgba(34,197,94,0.2)' }}>
+                {modalSuccess}
+              </div>
+            )}
 
-            <form onSubmit={handleCreateStaff} className="modal-form">
-              <div className="modal-form-group">
-                <label>Staff Full Name</label>
-                <div className="modal-input-wrapper">
-                  <User size={16} className="modal-input-icon" />
-                  <input 
-                    type="text" 
-                    placeholder="Enter full name" 
-                    value={staffName}
-                    onChange={(e) => setStaffName(e.target.value)}
-                    required 
-                  />
-                </div>
+            <form onSubmit={handleCreateStaff} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div>
+                <label className="card-eyebrow" style={{ display: 'block', marginBottom: '0.5rem' }}>Staff Full Name</label>
+                <input 
+                  className="form-input"
+                  type="text" 
+                  placeholder="Enter full name" 
+                  value={staffName}
+                  onChange={(e) => setStaffName(e.target.value)}
+                  required 
+                />
               </div>
 
-              <div className="modal-form-group">
-                <label>Email Address</label>
-                <div className="modal-input-wrapper">
-                  <Mail size={16} className="modal-input-icon" />
-                  <input 
-                    type="email" 
-                    placeholder="Enter email address" 
-                    value={staffEmail}
-                    onChange={(e) => setStaffEmail(e.target.value)}
-                    required 
-                  />
-                </div>
+              <div>
+                <label className="card-eyebrow" style={{ display: 'block', marginBottom: '0.5rem' }}>Email Address</label>
+                <input 
+                  className="form-input"
+                  type="email" 
+                  placeholder="Enter email address" 
+                  value={staffEmail}
+                  onChange={(e) => setStaffEmail(e.target.value)}
+                  required 
+                />
               </div>
 
-              <div className="modal-form-group">
-                <label>Phone Number</label>
-                <div className="modal-input-wrapper">
-                  <Phone size={16} className="modal-input-icon" />
-                  <input 
-                    type="tel" 
-                    placeholder="Enter phone number" 
-                    value={staffPhone}
-                    onChange={(e) => setStaffPhone(e.target.value)}
-                    required 
-                  />
-                </div>
+              <div>
+                <label className="card-eyebrow" style={{ display: 'block', marginBottom: '0.5rem' }}>Phone Number</label>
+                <input 
+                  className="form-input"
+                  type="tel" 
+                  placeholder="Enter phone number" 
+                  value={staffPhone}
+                  onChange={(e) => setStaffPhone(e.target.value)}
+                  required 
+                />
               </div>
 
-              <div className="modal-form-group">
-                <label>Secure Password</label>
-                <div className="modal-input-wrapper">
-                  <Lock size={16} className="modal-input-icon" />
-                  <input 
-                    type="password" 
-                    placeholder="Create secure password" 
-                    value={staffPassword}
-                    onChange={(e) => setStaffPassword(e.target.value)}
-                    required 
-                  />
-                </div>
+              <div>
+                <label className="card-eyebrow" style={{ display: 'block', marginBottom: '0.5rem' }}>Secure Password</label>
+                <input 
+                  className="form-input"
+                  type="password" 
+                  placeholder="Create secure password" 
+                  value={staffPassword}
+                  onChange={(e) => setStaffPassword(e.target.value)}
+                  required 
+                />
               </div>
 
-              <div className="modal-actions">
-                <button type="button" className="modal-cancel-btn" onClick={() => setShowModal(false)}>
+              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem' }}>
+                <button type="button" className="btn-secondary" style={{ flex: 1, padding: '0.85rem' }} onClick={() => setShowModal(false)}>
                   Cancel
                 </button>
-                <button type="submit" className="modal-submit-btn" disabled={modalLoading}>
+                <button type="submit" className="btn-primary" style={{ flex: 1, padding: '0.85rem' }} disabled={modalLoading}>
                   {modalLoading ? 'Creating...' : 'Create Account'}
                 </button>
               </div>

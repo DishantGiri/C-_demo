@@ -176,3 +176,35 @@ This document provides a detailed breakdown of the 16 primary features implement
   1. In the **Sales** tab, create a new sales invoice.
   2. Select parts that add up to a subtotal of 5,050.
   3. The invoice creator will show a 10% discount applied and deduct 505.00 from the final total.
+
+---
+
+## 🧭 Customer Guidance
+
+Use this as the practical customer flow for the system:
+
+1. Register first at `/register` with your name, email, phone number, and password.
+2. Sign in and complete your profile so the garage can contact you easily.
+3. Add every vehicle you own, including make, model, year, and license plate.
+4. Book an appointment when your vehicle needs service, and choose the correct vehicle.
+5. Request unavailable parts only when the item is not in stock, so staff can source it for you.
+6. Leave a service review after a completed invoice so the team can track service quality.
+7. Review your purchase and service history regularly to track spending, discounts, and past work.
+8. Watch for loyalty savings on large purchases and make sure unpaid invoices are cleared on time.
+
+### What customers should expect
+
+* The profile area is for personal details and password management.
+* The vehicle area is for maintaining one or more cars linked to your account.
+* The booking and request features are for service scheduling and special part requests.
+* The history area is for past purchases, service jobs, and discount records.
+* Loyalty discounts apply automatically when a single purchase exceeds 5,000.
+
+### Best customer workflow
+
+1. Register.
+2. Update profile.
+3. Add vehicles.
+4. Book service or request parts.
+5. Review completed service.
+6. Check history and payments.

@@ -68,7 +68,7 @@ export default function AdminPartsDashboard() {
 
   // Modal State for Purchase Invoice (Stock Update)
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
-  const [invoiceNumber, setInvoiceNumber] = useState('');
+  const [invoiceNumStr, setInvoiceNumStr] = useState('');
   const [supplierName, setSupplierName] = useState('');
   const [invoiceItems, setInvoiceItems] = useState<{ partId: number; quantity: number; unitPrice: number }[]>([
     { partId: 0, quantity: 1, unitPrice: 0 }
@@ -262,7 +262,7 @@ export default function AdminPartsDashboard() {
     setInvoiceModalError('');
 
     // Validations
-    if (!invoiceNumber.trim()) {
+    if (!invoiceNumStr.trim()) {
       setInvoiceModalError('Invoice number is required.');
       return;
     }
@@ -284,7 +284,7 @@ export default function AdminPartsDashboard() {
     if (!token) return;
 
     const payload = {
-      invoiceNumber,
+      invoiceNumber: invoiceNumStr,
       supplierName,
       purchaseDate: new Date().toISOString(),
       items: invoiceItems.map(i => ({
@@ -320,7 +320,7 @@ export default function AdminPartsDashboard() {
   };
 
   const resetInvoiceForm = () => {
-    setInvoiceNumber('');
+    setInvoiceNumStr('');
     setSupplierName('');
     setInvoiceItems([{ partId: 0, quantity: 1, unitPrice: 0 }]);
     setInvoiceModalError('');
@@ -347,73 +347,60 @@ export default function AdminPartsDashboard() {
   });
 
   return (
-    <div className="admin-portal-wrapper">
-      {/* Dynamic Top Banner */}
-      <header className="admin-portal-header">
-        <div className="admin-header-container">
-          <div className="admin-logo-group">
-            <Link href="/" className="admin-back-btn">
-              <ArrowLeft size={18} />
+    <div className="admin-page">
+      {/* Top Banner */}
+      <header className="page-header" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '2.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>
+            <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '0.5rem', textDecoration: 'none' }}>
+              <ArrowLeft size={16} />
               <span>Back to Site</span>
             </Link>
-            <h1>Redline Auto Garage <span className="red-badge">Inventory Control</span></h1>
+            <h1 className="page-header-title">Inventory Control</h1>
+            <p className="page-header-text">Manage catalog details, track stock alerts, and record replenishment orders.</p>
           </div>
 
-          <div style={{ display: 'flex', gap: '1.2rem', alignItems: 'center', flexWrap: 'wrap' }}>
-            <Link href="/admin/users" style={{ color: 'var(--text-secondary)', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>
-              Users
-            </Link>
-            <span style={{ color: 'rgba(255,255,255,0.15)' }}>|</span>
-            <Link href="/admin/parts" style={{ color: 'var(--primary-accent)', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>
-              Parts & Invoices
-            </Link>
-            <span style={{ color: 'rgba(255,255,255,0.15)' }}>|</span>
-            <Link href="/admin/vendors" style={{ color: 'var(--text-secondary)', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>
-              Vendors
-            </Link>
-            <span style={{ color: 'rgba(255,255,255,0.15)' }}>|</span>
-            <Link href="/admin/reports" style={{ color: 'var(--text-secondary)', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>
-              Financial Reports
-            </Link>
-          </div>
-
-          <div className="admin-user-info">
-            <Layers size={18} className="shield-icon" />
-            <span>Parts & Stock Management</span>
+          <div style={{ display: 'flex', gap: '1rem', backgroundColor: 'var(--secondary-bg)', padding: '0.5rem 1rem', borderRadius: '1rem', border: '1px solid var(--borders)' }}>
+            <Link href="/admin/users" style={{ color: 'var(--text-secondary)', fontWeight: 600, textDecoration: 'none', fontSize: '0.85rem' }}>Users</Link>
+            <span style={{ color: 'var(--borders)' }}>|</span>
+            <Link href="/admin/parts" style={{ color: 'var(--primary-accent)', fontWeight: 800, textDecoration: 'none', fontSize: '0.85rem' }}>Parts</Link>
+            <span style={{ color: 'var(--borders)' }}>|</span>
+            <Link href="/admin/vendors" style={{ color: 'var(--text-secondary)', fontWeight: 600, textDecoration: 'none', fontSize: '0.85rem' }}>Vendors</Link>
+            <span style={{ color: 'var(--borders)' }}>|</span>
+            <Link href="/admin/reports" style={{ color: 'var(--text-secondary)', fontWeight: 600, textDecoration: 'none', fontSize: '0.85rem' }}>Financials</Link>
           </div>
         </div>
       </header>
 
       {/* Main Container */}
-      <main className="admin-main-container">
+      <main>
         {error ? (
-          <div className="admin-error-card">
-            <h2>Access Restriction</h2>
-            <p>{error}</p>
-            <Link href="/login" className="admin-login-redirect">Go to Login</Link>
+          <div className="card empty-state" style={{ maxWidth: '480px', margin: '4rem auto' }}>
+            <div className="empty-state-icon"><X size={40} style={{ color: 'var(--primary-accent)' }} /></div>
+            <h2 className="empty-state-title">Access Restriction</h2>
+            <p className="empty-state-text" style={{ marginBottom: '1.5rem' }}>{error}</p>
+            <Link href="/login" className="btn-primary">Go to Login</Link>
           </div>
         ) : loading ? (
-          <div className="admin-loading-screen">
-            <Loader2 className="loading-spinner" />
-            <p>Retrieving Parts Directory and Invoices...</p>
+          <div className="card empty-state" style={{ minHeight: '300px' }}>
+            <Loader2 className="animate-spin" size={40} style={{ color: 'var(--primary-accent)', marginBottom: '1rem' }} />
+            <p className="card-eyebrow">Retrieving Parts Catalog and Invoices...</p>
           </div>
         ) : (
           <>
             {/* Quick Action Navigation Tabs */}
-            <div className="admin-tabs-wrapper" style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
               <button 
-                className={`admin-tab-btn ${activeTab === 'parts' ? 'active' : ''}`}
                 onClick={() => setActiveTab('parts')}
                 style={{
                   padding: '0.8rem 2rem',
                   fontSize: '0.9rem',
                   fontWeight: 700,
-                  borderRadius: '6px',
-                  border: 'none',
+                  borderRadius: '12px',
+                  border: '1px solid var(--borders)',
                   cursor: 'pointer',
-                  backgroundColor: activeTab === 'parts' ? 'var(--primary-accent)' : '#0f0f0f',
+                  backgroundColor: activeTab === 'parts' ? 'var(--primary-accent)' : 'var(--secondary-bg)',
                   color: '#fff',
-                  borderBottom: activeTab === 'parts' ? '3px solid #fff' : 'none',
                   transition: 'all 0.2s'
                 }}
               >
@@ -423,18 +410,16 @@ export default function AdminPartsDashboard() {
                 </div>
               </button>
               <button 
-                className={`admin-tab-btn ${activeTab === 'invoices' ? 'active' : ''}`}
                 onClick={() => setActiveTab('invoices')}
                 style={{
                   padding: '0.8rem 2rem',
                   fontSize: '0.9rem',
                   fontWeight: 700,
-                  borderRadius: '6px',
-                  border: 'none',
+                  borderRadius: '12px',
+                  border: '1px solid var(--borders)',
                   cursor: 'pointer',
-                  backgroundColor: activeTab === 'invoices' ? 'var(--primary-accent)' : '#0f0f0f',
+                  backgroundColor: activeTab === 'invoices' ? 'var(--primary-accent)' : 'var(--secondary-bg)',
                   color: '#fff',
-                  borderBottom: activeTab === 'invoices' ? '3px solid #fff' : 'none',
                   transition: 'all 0.2s'
                 }}
               >
@@ -447,26 +432,27 @@ export default function AdminPartsDashboard() {
 
             {activeTab === 'parts' ? (
               <>
-                {/* Control Panel Grid */}
-                <div className="admin-controls-card">
-                  <div className="search-and-filters">
-                    <div className="search-box-wrapper">
-                      <Search size={18} className="search-icon" />
+                {/* Control Panel */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem', marginBottom: '2rem' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', flex: 1, minWidth: '280px' }}>
+                    <div className="admin-search" style={{ flex: 1, minWidth: '240px' }}>
+                      <Search size={18} className="admin-search-icon" />
                       <input 
                         type="text" 
+                        className="admin-search-input"
                         placeholder="Search by part name or part number..." 
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                       />
                     </div>
 
-                    <div className="filter-select-group">
-                      <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <select className="form-select" style={{ padding: '0.75rem 1.25rem', borderRadius: '0.75rem' }} value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
                         <option value="All">All Categories</option>
                         {categories.map(c => <option key={c} value={c}>{c}</option>)}
                       </select>
 
-                      <select value={stockFilter} onChange={(e) => setStockFilter(e.target.value)}>
+                      <select className="form-select" style={{ padding: '0.75rem 1.25rem', borderRadius: '0.75rem' }} value={stockFilter} onChange={(e) => setStockFilter(e.target.value)}>
                         <option value="All">All Stock Levels</option>
                         <option value="In">In Stock</option>
                         <option value="Low">Low Stock Warning</option>
@@ -475,16 +461,20 @@ export default function AdminPartsDashboard() {
                     </div>
                   </div>
 
-                  <div className="action-button-group" style={{ display: 'flex', gap: '1rem' }}>
+                  <div style={{ display: 'flex', gap: '1rem' }}>
                     <button 
-                      className="create-staff-btn" 
+                      className="btn-primary" 
+                      style={{ padding: '0.85rem 1.5rem', borderRadius: '0.75rem', backgroundColor: '#22c55e' }}
                       onClick={() => { resetInvoiceForm(); setShowInvoiceModal(true); }}
-                      style={{ backgroundColor: '#22c55e' }}
                     >
                       <PlusCircle size={18} />
-                      <span>Purchase Stock (Invoice)</span>
+                      <span>Purchase Stock</span>
                     </button>
-                    <button className="create-staff-btn" onClick={() => { resetPartForm(); setShowPartModal(true); }}>
+                    <button 
+                      className="btn-primary" 
+                      style={{ padding: '0.85rem 1.5rem', borderRadius: '0.75rem' }}
+                      onClick={() => { resetPartForm(); setShowPartModal(true); }}
+                    >
                       <Plus size={18} />
                       <span>New Part Definition</span>
                     </button>
@@ -492,116 +482,109 @@ export default function AdminPartsDashboard() {
                 </div>
 
                 {/* Catalog Listing */}
-                <div className="users-table-card">
-                  <h2>Vehicle Parts Catalog</h2>
-                  <div className="table-responsive-wrapper">
-                    <table className="users-dashboard-table">
-                      <thead>
+                <div className="card p-7" style={{ overflowX: 'auto' }}>
+                  <table className="admin-table">
+                    <thead>
+                      <tr>
+                        <th>Part Information</th>
+                        <th>Part Number</th>
+                        <th>Category</th>
+                        <th>Unit Retail Price</th>
+                        <th>Stock Level</th>
+                        <th style={{ textAlign: 'right' }}>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredParts.length === 0 ? (
                         <tr>
-                          <th>Part Information</th>
-                          <th>Part Number</th>
-                          <th>Category</th>
-                          <th>Unit Retail Price</th>
-                          <th>Stock Level</th>
-                          <th style={{ textAlign: 'right' }}>Actions</th>
+                          <td colSpan={6} style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>
+                            No vehicle parts registered matching your current selection.
+                          </td>
                         </tr>
-                      </thead>
-                      <tbody>
-                        {filteredParts.length === 0 ? (
-                          <tr>
-                            <td colSpan={6} className="table-empty-row">
-                              No vehicle parts registered matching your current selection.
-                            </td>
-                          </tr>
-                        ) : (
-                          filteredParts.map(part => {
-                            const isOutOfStock = part.stockQuantity === 0;
-                            const isLowStock = part.stockQuantity > 0 && part.stockQuantity <= part.minStockLevel;
+                      ) : (
+                        filteredParts.map(part => {
+                          const isOutOfStock = part.stockQuantity === 0;
+                          const isLowStock = part.stockQuantity > 0 && part.stockQuantity <= part.minStockLevel;
 
-                            return (
-                              <tr key={part.id} className={isOutOfStock ? 'inactive-row' : ''}>
-                                <td>
-                                  <div className="user-profile-meta">
-                                    <div className="avatar-initials customer">
-                                      {part.name.substring(0, 2).toUpperCase()}
-                                    </div>
-                                    <div className="meta-text">
-                                      <span className="username">{part.name}</span>
-                                      <span className="user-id">{part.description || 'No description added.'}</span>
-                                    </div>
+                          return (
+                            <tr key={part.id}>
+                              <td>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                  <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '50%', backgroundColor: 'var(--secondary-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', border: '1px solid var(--borders)' }}>
+                                    {part.name.substring(0, 2).toUpperCase()}
                                   </div>
-                                </td>
-                                <td>
-                                  <span style={{ fontFamily: 'monospace', fontWeight: 'bold', fontSize: '0.95rem' }}>
-                                    {part.partNumber}
+                                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{part.name}</span>
+                                    <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{part.description || 'No description added.'}</span>
+                                  </div>
+                                </div>
+                              </td>
+                              <td>
+                                <span style={{ fontFamily: 'monospace', fontWeight: 'bold', fontSize: '0.9rem' }}>
+                                  {part.partNumber}
+                                </span>
+                              </td>
+                              <td>
+                                <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>{part.category}</span>
+                              </td>
+                              <td>
+                                <strong style={{ color: '#22c55e', fontSize: '0.95rem' }}>
+                                  ${part.price.toFixed(2)}
+                                </strong>
+                              </td>
+                              <td>
+                                {isOutOfStock ? (
+                                  <span className="admin-badge admin-badge-inactive">Out of Stock</span>
+                                ) : isLowStock ? (
+                                  <span className="admin-badge" style={{ backgroundColor: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
+                                    Low Stock ({part.stockQuantity})
                                   </span>
-                                </td>
-                                <td>
-                                  <span className="role-badge staff">{part.category}</span>
-                                </td>
-                                <td>
-                                  <strong style={{ color: '#22c55e', fontSize: '1rem' }}>
-                                    ${part.price.toFixed(2)}
-                                  </strong>
-                                </td>
-                                <td>
-                                  {isOutOfStock ? (
-                                    <span className="status-pill inactive">Out of Stock</span>
-                                  ) : isLowStock ? (
-                                    <span className="status-pill" style={{ backgroundColor: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' }}>
-                                      Low Stock ({part.stockQuantity})
-                                    </span>
-                                  ) : (
-                                    <span className="status-pill active">In Stock ({part.stockQuantity})</span>
-                                  )}
-                                </td>
-                                <td style={{ textAlign: 'right' }}>
-                                  <div style={{ display: 'flex', gap: '0.6rem', justifyContent: 'flex-end' }}>
-                                    <button 
-                                      className="toggle-status-btn activate" 
-                                      onClick={() => openEditModal(part)}
-                                      style={{ borderColor: 'rgba(255, 255, 255, 0.2)', color: '#fff' }}
-                                    >
-                                      <Edit3 size={14} />
-                                      <span>Edit</span>
-                                    </button>
-                                    <button 
-                                      className="toggle-status-btn deactivate"
-                                      onClick={() => handleDeletePart(part.id)}
-                                    >
-                                      <Trash2 size={14} />
-                                      <span>Delete</span>
-                                    </button>
-                                  </div>
-                                </td>
-                              </tr>
-                            );
-                          })
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
+                                ) : (
+                                  <span className="admin-badge admin-badge-active">In Stock ({part.stockQuantity})</span>
+                                )}
+                              </td>
+                              <td style={{ textAlign: 'right' }}>
+                                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                                  <button 
+                                    className="admin-action-btn"
+                                    onClick={() => openEditModal(part)}
+                                  >
+                                    <Edit3 size={14} />
+                                    <span>Edit</span>
+                                  </button>
+                                  <button 
+                                    className="admin-action-btn"
+                                    onClick={() => handleDeletePart(part.id)}
+                                    style={{ color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.2)' }}
+                                  >
+                                    <Trash2 size={14} />
+                                    <span>Delete</span>
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
                 </div>
               </>
             ) : (
               /* Invoices Tab View */
-              <div className="users-table-card">
-                <h2>Purchase Invoice replenishment History</h2>
+              <div>
+                <h2 style={{ fontFamily: 'var(--font-oswald, sans-serif)', fontSize: '1.25rem', marginBottom: '1.5rem', textTransform: 'uppercase' }}>Purchase Invoice Replenishment History</h2>
                 {invoices.length === 0 ? (
-                  <div className="table-empty-row" style={{ textAlign: 'center', padding: '4rem 1rem', color: 'var(--text-secondary)' }}>
-                    No purchase invoices registered yet. Update your parts stock level by recording a purchase.
+                  <div className="card empty-state" style={{ padding: '4rem 1rem' }}>
+                    <p className="empty-state-text">No purchase invoices registered yet. Update your parts stock level by recording a purchase.</p>
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                     {invoices.map(invoice => (
                       <div 
                         key={invoice.id} 
-                        style={{
-                          backgroundColor: '#070707',
-                          border: '1px solid var(--borders)',
-                          borderRadius: '8px',
-                          padding: '1.5rem'
-                        }}
+                        className="card p-7"
+                        style={{ border: '1px solid var(--borders)' }}
                       >
                         {/* Invoice Header details */}
                         <div 
@@ -609,7 +592,7 @@ export default function AdminPartsDashboard() {
                             display: 'flex',
                             justifyContent: 'space-between',
                             alignItems: 'center',
-                            borderBottom: '1px solid rgba(255,255,255,0.08)',
+                            borderBottom: '1px solid var(--borders)',
                             paddingBottom: '1rem',
                             marginBottom: '1rem',
                             flexWrap: 'wrap',
@@ -636,25 +619,25 @@ export default function AdminPartsDashboard() {
                         </div>
 
                         {/* Invoice Line items */}
-                        <div className="table-responsive-wrapper">
-                          <table className="users-dashboard-table" style={{ fontSize: '0.85rem' }}>
+                        <div style={{ overflowX: 'auto' }}>
+                          <table className="admin-table" style={{ fontSize: '0.85rem' }}>
                             <thead>
                               <tr>
-                                <th style={{ padding: '0.6rem' }}>Part Name</th>
-                                <th style={{ padding: '0.6rem' }}>Part Number</th>
-                                <th style={{ padding: '0.6rem' }}>Quantity</th>
-                                <th style={{ padding: '0.6rem' }}>Unit Price</th>
-                                <th style={{ padding: '0.6rem', textAlign: 'right' }}>Subtotal</th>
+                                <th>Part Name</th>
+                                <th>Part Number</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th style={{ textAlign: 'right' }}>Subtotal</th>
                               </tr>
                             </thead>
                             <tbody>
                               {invoice.items.map(item => (
-                                <tr key={item.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                                  <td style={{ padding: '0.8rem 0.6rem' }}>{item.part?.name || 'Unknown Part'}</td>
-                                  <td style={{ padding: '0.8rem 0.6rem', fontFamily: 'monospace' }}>{item.part?.partNumber || 'N/A'}</td>
-                                  <td style={{ padding: '0.8rem 0.6rem', fontWeight: 'bold' }}>{item.quantity} units</td>
-                                  <td style={{ padding: '0.8rem 0.6rem', color: '#22c55e' }}>${item.unitPrice.toFixed(2)}</td>
-                                  <td style={{ padding: '0.8rem 0.6rem', textAlign: 'right', fontWeight: 700 }}>
+                                <tr key={item.id}>
+                                  <td>{item.part?.name || 'Unknown Part'}</td>
+                                  <td style={{ fontFamily: 'monospace' }}>{item.part?.partNumber || 'N/A'}</td>
+                                  <td style={{ fontWeight: 'bold' }}>{item.quantity} units</td>
+                                  <td style={{ color: '#22c55e' }}>${item.unitPrice.toFixed(2)}</td>
+                                  <td style={{ textAlign: 'right', fontWeight: 700 }}>
                                     ${(item.quantity * item.unitPrice).toFixed(2)}
                                   </td>
                                 </tr>
@@ -674,139 +657,112 @@ export default function AdminPartsDashboard() {
 
       {/* Part Definition Add/Edit Modal */}
       {showPartModal && (
-        <div className="staff-modal-overlay">
-          <div className="staff-modal-content">
-            <div className="modal-header">
-              <h2>{isEditingPart ? 'Edit Vehicle Part Definition' : 'Define New Vehicle Part'}</h2>
-              <button className="close-modal-btn" onClick={() => setShowPartModal(false)}>&times;</button>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 100, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
+          <div className="card p-9" style={{ width: '100%', maxWidth: '28rem', maxHeight: '90vh', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+              <h2 className="card-title" style={{ fontSize: '1.25rem' }}>{isEditingPart ? 'Edit Part Definition' : 'Define New Part'}</h2>
+              <button style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.5rem', cursor: 'pointer' }} onClick={() => setShowPartModal(false)}>&times;</button>
             </div>
             
-            {partModalError && <div className="modal-error-message">{partModalError}</div>}
+            {partModalError && (
+              <div style={{ color: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)', padding: '0.75rem 1rem', borderRadius: '0.75rem', fontSize: '0.85rem', marginBottom: '1.5rem', border: '1px solid rgba(239,68,68,0.2)' }}>
+                {partModalError}
+              </div>
+            )}
 
-            <form onSubmit={handlePartSubmit} className="modal-form">
-              <div className="modal-form-group">
-                <label>Part Display Name</label>
-                <div className="modal-input-wrapper">
-                  <Package size={16} className="modal-input-icon" />
-                  <input 
-                    type="text" 
-                    placeholder="e.g. Performance Carbon Ceramic Brake Pads" 
-                    value={partName}
-                    onChange={(e) => setPartName(e.target.value)}
-                    required 
-                  />
-                </div>
+            <form onSubmit={handlePartSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div>
+                <label className="card-eyebrow" style={{ display: 'block', marginBottom: '0.5rem' }}>Part Display Name</label>
+                <input 
+                  className="form-input"
+                  type="text" 
+                  placeholder="e.g. Performance Carbon Ceramic Brake Pads" 
+                  value={partName}
+                  onChange={(e) => setPartName(e.target.value)}
+                  required 
+                />
               </div>
 
-              <div className="modal-form-group">
-                <label>Unique Part Number (SKU)</label>
-                <div className="modal-input-wrapper">
-                  <Layers size={16} className="modal-input-icon" />
-                  <input 
-                    type="text" 
-                    placeholder="e.g. BRK-CER-0092" 
-                    value={partNumber}
-                    onChange={(e) => setPartNumber(e.target.value)}
-                    required 
-                  />
-                </div>
+              <div>
+                <label className="card-eyebrow" style={{ display: 'block', marginBottom: '0.5rem' }}>Unique Part Number (SKU)</label>
+                <input 
+                  className="form-input"
+                  type="text" 
+                  placeholder="e.g. BRK-CER-0092" 
+                  value={partNumber}
+                  onChange={(e) => setPartNumber(e.target.value)}
+                  required 
+                />
               </div>
 
-              <div className="modal-form-group">
-                <label>Inventory Category</label>
-                <div className="modal-input-wrapper">
-                  <select 
-                    value={partCategory} 
-                    onChange={(e) => setPartCategory(e.target.value)}
-                    style={{
-                      width: '100%',
-                      backgroundColor: '#060606',
-                      border: '1px solid var(--borders)',
-                      borderRadius: '6px',
-                      padding: '0.75rem 1rem',
-                      color: 'var(--text-primary)',
-                      fontSize: '0.9rem'
-                    }}
-                  >
-                    {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                  </select>
-                </div>
+              <div>
+                <label className="card-eyebrow" style={{ display: 'block', marginBottom: '0.5rem' }}>Inventory Category</label>
+                <select 
+                  className="form-select"
+                  value={partCategory} 
+                  onChange={(e) => setPartCategory(e.target.value)}
+                >
+                  {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                </select>
               </div>
 
-              <div className="modal-form-group">
-                <label>Description / Technical Specifications</label>
-                <div className="modal-input-wrapper">
-                  <textarea 
-                    placeholder="Enter part details, compatible models, or material info..." 
-                    value={partDesc}
-                    onChange={(e) => setPartDesc(e.target.value)}
-                    style={{
-                      width: '100%',
-                      minHeight: '80px',
-                      backgroundColor: '#060606',
-                      border: '1px solid var(--borders)',
-                      borderRadius: '6px',
-                      padding: '0.75rem',
-                      color: 'var(--text-primary)',
-                      fontSize: '0.9rem',
-                      fontFamily: 'inherit'
-                    }}
-                  />
-                </div>
+              <div>
+                <label className="card-eyebrow" style={{ display: 'block', marginBottom: '0.5rem' }}>Description</label>
+                <textarea 
+                  className="form-input"
+                  placeholder="Enter compatible models or specs..." 
+                  value={partDesc}
+                  onChange={(e) => setPartDesc(e.target.value)}
+                  style={{ minHeight: '80px', fontFamily: 'inherit' }}
+                />
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div className="modal-form-group">
-                  <label>Retail Price ($)</label>
-                  <div className="modal-input-wrapper">
-                    <DollarSign size={16} className="modal-input-icon" />
-                    <input 
-                      type="number" 
-                      step="0.01"
-                      placeholder="99.99" 
-                      value={partPrice}
-                      onChange={(e) => setPartPrice(e.target.value)}
-                      required 
-                    />
-                  </div>
+                <div>
+                  <label className="card-eyebrow" style={{ display: 'block', marginBottom: '0.5rem' }}>Retail Price ($)</label>
+                  <input 
+                    className="form-input"
+                    type="number" 
+                    step="0.01"
+                    placeholder="99.99" 
+                    value={partPrice}
+                    onChange={(e) => setPartPrice(e.target.value)}
+                    required 
+                  />
                 </div>
 
-                <div className="modal-form-group">
-                  <label>Low Stock Warning Limit</label>
-                  <div className="modal-input-wrapper">
-                    <AlertTriangle size={16} className="modal-input-icon" />
-                    <input 
-                      type="number" 
-                      placeholder="5" 
-                      value={partMinStock}
-                      onChange={(e) => setPartMinStock(e.target.value)}
-                      required 
-                    />
-                  </div>
+                <div>
+                  <label className="card-eyebrow" style={{ display: 'block', marginBottom: '0.5rem' }}>Min Stock Limit</label>
+                  <input 
+                    className="form-input"
+                    type="number" 
+                    placeholder="5" 
+                    value={partMinStock}
+                    onChange={(e) => setPartMinStock(e.target.value)}
+                    required 
+                  />
                 </div>
               </div>
 
               {!isEditingPart && (
-                <div className="modal-form-group">
-                  <label>Initial Stock Quantity</label>
-                  <div className="modal-input-wrapper">
-                    <Package size={16} className="modal-input-icon" />
-                    <input 
-                      type="number" 
-                      placeholder="0" 
-                      value={partStock}
-                      onChange={(e) => setPartStock(e.target.value)}
-                      required 
-                    />
-                  </div>
+                <div>
+                  <label className="card-eyebrow" style={{ display: 'block', marginBottom: '0.5rem' }}>Initial Stock Quantity</label>
+                  <input 
+                    className="form-input"
+                    type="number" 
+                    placeholder="0" 
+                    value={partStock}
+                    onChange={(e) => setPartStock(e.target.value)}
+                    required 
+                  />
                 </div>
               )}
 
-              <div className="modal-actions">
-                <button type="button" className="modal-cancel-btn" onClick={() => setShowPartModal(false)}>
+              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem' }}>
+                <button type="button" className="btn-secondary" style={{ flex: 1, padding: '0.85rem' }} onClick={() => setShowPartModal(false)}>
                   Cancel
                 </button>
-                <button type="submit" className="modal-submit-btn" disabled={partModalLoading}>
+                <button type="submit" className="btn-primary" style={{ flex: 1, padding: '0.85rem' }} disabled={partModalLoading}>
                   {partModalLoading ? 'Saving...' : isEditingPart ? 'Update Definition' : 'Define Part'}
                 </button>
               </div>
@@ -817,50 +773,50 @@ export default function AdminPartsDashboard() {
 
       {/* Stock Purchase Invoice Modal */}
       {showInvoiceModal && (
-        <div className="staff-modal-overlay">
-          <div className="staff-modal-content" style={{ maxWidth: '640px' }}>
-            <div className="modal-header">
-              <h2>Record Stock Purchase Invoice</h2>
-              <button className="close-modal-btn" onClick={() => setShowInvoiceModal(false)}>&times;</button>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 100, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
+          <div className="card p-9" style={{ width: '100%', maxWidth: '38rem', maxHeight: '90vh', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+              <h2 className="card-title" style={{ fontSize: '1.25rem' }}>Record Purchase Invoice</h2>
+              <button style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.5rem', cursor: 'pointer' }} onClick={() => setShowInvoiceModal(false)}>&times;</button>
             </div>
+            
+            {invoiceModalError && (
+              <div style={{ color: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)', padding: '0.75rem 1rem', borderRadius: '0.75rem', fontSize: '0.85rem', marginBottom: '1.5rem', border: '1px solid rgba(239,68,68,0.2)' }}>
+                {invoiceModalError}
+              </div>
+            )}
 
-            {invoiceModalError && <div className="modal-error-message">{invoiceModalError}</div>}
-
-            <form onSubmit={handleInvoiceSubmit} className="modal-form">
+            <form onSubmit={handleInvoiceSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div className="modal-form-group">
-                  <label>Invoice Number</label>
-                  <div className="modal-input-wrapper">
-                    <FileText size={16} className="modal-input-icon" />
-                    <input 
-                      type="text" 
-                      placeholder="e.g. INV-9908" 
-                      value={invoiceNumber}
-                      onChange={(e) => setInvoiceNumber(e.target.value)}
-                      required 
-                    />
-                  </div>
+                <div>
+                  <label className="card-eyebrow" style={{ display: 'block', marginBottom: '0.5rem' }}>Invoice Number</label>
+                  <input 
+                    className="form-input"
+                    type="text" 
+                    placeholder="e.g. INV-9908" 
+                    value={invoiceNumStr}
+                    onChange={(e) => setInvoiceNumStr(e.target.value)}
+                    required 
+                  />
                 </div>
 
-                <div className="modal-form-group">
-                  <label>Supplier / Vendor Name</label>
-                  <div className="modal-input-wrapper">
-                    <Layers size={16} className="modal-input-icon" />
-                    <input 
-                      type="text" 
-                      placeholder="e.g. Bosch Global Parts" 
-                      value={supplierName}
-                      onChange={(e) => setSupplierName(e.target.value)}
-                      required 
-                    />
-                  </div>
+                <div>
+                  <label className="card-eyebrow" style={{ display: 'block', marginBottom: '0.5rem' }}>Supplier / Vendor Name</label>
+                  <input 
+                    className="form-input"
+                    type="text" 
+                    placeholder="e.g. Bosch Global Parts" 
+                    value={supplierName}
+                    onChange={(e) => setSupplierName(e.target.value)}
+                    required 
+                  />
                 </div>
               </div>
 
               {/* Purchase items list */}
-              <div className="modal-form-group">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                  <label style={{ margin: 0 }}>Replenishment Lines</label>
+              <div style={{ borderTop: '1px solid var(--borders)', paddingTop: '1.25rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <label className="card-eyebrow" style={{ margin: 0 }}>Replenishment Lines</label>
                   <button 
                     type="button" 
                     onClick={addInvoiceItemLine}
@@ -887,10 +843,10 @@ export default function AdminPartsDashboard() {
                         value={item.partId}
                         onChange={(e) => updateInvoiceItem(idx, 'partId', parseInt(e.target.value))}
                         style={{
-                          backgroundColor: '#060606',
+                          backgroundColor: 'var(--main-bg)',
                           border: '1px solid var(--borders)',
-                          borderRadius: '6px',
-                          padding: '0.5rem',
+                          borderRadius: '0.5rem',
+                          padding: '0.6rem',
                           color: '#fff',
                           fontSize: '0.85rem'
                         }}
@@ -908,10 +864,10 @@ export default function AdminPartsDashboard() {
                         value={item.quantity}
                         onChange={(e) => updateInvoiceItem(idx, 'quantity', parseInt(e.target.value) || 0)}
                         style={{
-                          backgroundColor: '#060606',
+                          backgroundColor: 'var(--main-bg)',
                           border: '1px solid var(--borders)',
-                          borderRadius: '6px',
-                          padding: '0.5rem',
+                          borderRadius: '0.5rem',
+                          padding: '0.6rem',
                           color: '#fff',
                           fontSize: '0.85rem',
                           textAlign: 'center'
@@ -927,10 +883,10 @@ export default function AdminPartsDashboard() {
                         value={item.unitPrice || ''}
                         onChange={(e) => updateInvoiceItem(idx, 'unitPrice', parseFloat(e.target.value) || 0)}
                         style={{
-                          backgroundColor: '#060606',
+                          backgroundColor: 'var(--main-bg)',
                           border: '1px solid var(--borders)',
-                          borderRadius: '6px',
-                          padding: '0.5rem',
+                          borderRadius: '0.5rem',
+                          padding: '0.6rem',
                           color: '#fff',
                           fontSize: '0.85rem',
                           textAlign: 'center'
@@ -965,12 +921,12 @@ export default function AdminPartsDashboard() {
                   alignItems: 'center',
                   backgroundColor: 'rgba(255, 255, 255, 0.02)',
                   padding: '1rem',
-                  borderRadius: '6px',
+                  borderRadius: '0.75rem',
                   border: '1px solid var(--borders)',
                   marginTop: '0.5rem'
                 }}
               >
-                <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>
+                <span className="card-eyebrow" style={{ fontWeight: 'bold' }}>
                   TOTAL PURCHASE AMOUNT
                 </span>
                 <strong style={{ fontSize: '1.4rem', color: '#22c55e' }}>
@@ -978,11 +934,11 @@ export default function AdminPartsDashboard() {
                 </strong>
               </div>
 
-              <div className="modal-actions">
-                <button type="button" className="modal-cancel-btn" onClick={() => setShowInvoiceModal(false)}>
+              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
+                <button type="button" className="btn-secondary" style={{ flex: 1, padding: '0.85rem' }} onClick={() => setShowInvoiceModal(false)}>
                   Cancel
                 </button>
-                <button type="submit" className="modal-submit-btn" disabled={invoiceModalLoading} style={{ backgroundColor: '#22c55e' }}>
+                <button type="submit" className="btn-primary" style={{ flex: 1, padding: '0.85rem', backgroundColor: '#22c55e' }} disabled={invoiceModalLoading}>
                   {invoiceModalLoading ? 'Processing...' : 'Complete Purchase'}
                 </button>
               </div>

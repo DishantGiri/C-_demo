@@ -21,10 +21,10 @@ interface Invoice {
   items: { id: number; partId: number; partName: string; quantity: number; unitPrice: number }[];
 }
 
-const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
-  Paid:    { bg: 'rgba(34,197,94,0.12)',  color: '#22c55e' },
-  Unpaid:  { bg: 'rgba(239,68,68,0.12)',  color: '#ef4444' },
-  Pending: { bg: 'rgba(245,158,11,0.12)', color: '#f59e0b' },
+const STATUS_COLORS: Record<string, string> = {
+  Paid: 'admin-badge-active',
+  Unpaid: 'admin-badge-inactive',
+  Pending: 'admin-badge-pending',
 };
 
 export default function StaffSalesPage() {
@@ -65,15 +65,20 @@ export default function StaffSalesPage() {
   const loadAll = async () => {
     setLoading(true);
     const h = { headers: { Authorization: `Bearer ${getToken()}` } };
-    const [invRes, partsRes, custRes] = await Promise.all([
-      fetch(`${API}/api/sales`, h),
-      fetch(`${API}/api/parts`, h),
-      fetch(`${API}/api/customers`, h),
-    ]);
-    if (invRes.ok) setInvoices(await invRes.json());
-    if (partsRes.ok) setParts(await partsRes.json());
-    if (custRes.ok) setCustomers(await custRes.json());
-    setLoading(false);
+    try {
+      const [invRes, partsRes, custRes] = await Promise.all([
+        fetch(`${API}/api/sales`, h),
+        fetch(`${API}/api/parts`, h),
+        fetch(`${API}/api/customers`, h),
+      ]);
+      if (invRes.ok) setInvoices(await invRes.json());
+      if (partsRes.ok) setParts(await partsRes.json());
+      if (custRes.ok) setCustomers(await custRes.json());
+    } catch {
+      setError('Cannot reach backend. Is the server online?');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const filtered = useMemo(() => {
@@ -148,189 +153,235 @@ export default function StaffSalesPage() {
     s === 'Paid' ? <CheckCircle size={14} /> : s === 'Pending' ? <Clock size={14} /> : <XCircle size={14} />;
 
   return (
-    <div className="admin-portal-wrapper">
-      <header className="admin-portal-header">
-        <div className="admin-header-container">
-          <div className="admin-logo-group">
-            <Link href="/" className="admin-back-btn"><ArrowLeft size={18} /><span>Back</span></Link>
-            <h1>Redline Auto Garage <span className="red-badge">Sales & Invoices</span></h1>
+    <div className="admin-page">
+      <header className="page-header" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '2.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>
+            <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '0.5rem', textDecoration: 'none' }}>
+              <ArrowLeft size={16} />
+              <span>Back to Site</span>
+            </Link>
+            <h1 className="page-header-title">Sales & Invoices</h1>
+            <p className="page-header-text">Issue new sales records, track collected revenue, and dispatch client receipts.</p>
           </div>
-          <div style={{ display: 'flex', gap: '1.2rem', alignItems: 'center' }}>
-            <Link href="/staff/customers" style={{ color: 'var(--text-secondary)', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>Customers</Link>
-            <span style={{ color: 'rgba(255,255,255,0.15)' }}>|</span>
-            <Link href="/staff/sales" style={{ color: 'var(--primary-accent)', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>Sales & Invoices</Link>
-            <span style={{ color: 'rgba(255,255,255,0.15)' }}>|</span>
-            <Link href="/staff/reports" style={{ color: 'var(--text-secondary)', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>Reports</Link>
+          <div style={{ display: 'flex', gap: '1rem', backgroundColor: 'var(--secondary-bg)', padding: '0.5rem 1rem', borderRadius: '1rem', border: '1px solid var(--borders)' }}>
+            <Link href="/staff/customers" style={{ color: 'var(--text-secondary)', fontWeight: 600, textDecoration: 'none', fontSize: '0.85rem' }}>Customers</Link>
+            <span style={{ color: 'var(--borders)' }}>|</span>
+            <Link href="/staff/sales" style={{ color: 'var(--primary-accent)', fontWeight: 800, textDecoration: 'none', fontSize: '0.85rem' }}>Sales & Invoices</Link>
+            <span style={{ color: 'var(--borders)' }}>|</span>
+            <Link href="/staff/reports" style={{ color: 'var(--text-secondary)', fontWeight: 600, textDecoration: 'none', fontSize: '0.85rem' }}>Reports</Link>
           </div>
-          <div className="admin-user-info"><Shield size={18} className="shield-icon" /><span>Staff Portal</span></div>
         </div>
       </header>
 
-      <main className="admin-main-container">
+      <main>
         {error ? (
-          <div className="admin-error-card"><h2>Access Denied</h2><p>{error}</p></div>
+          <div className="card empty-state" style={{ maxWidth: '480px', margin: '4rem auto' }}>
+            <div className="empty-state-icon"><X size={40} style={{ color: 'var(--primary-accent)' }} /></div>
+            <h2 className="empty-state-title">Access Denied</h2>
+            <p className="empty-state-text" style={{ marginBottom: '1.5rem' }}>{error}</p>
+          </div>
         ) : loading ? (
-          <div className="admin-loading-screen"><Loader2 className="loading-spinner" /><p>Loading invoices...</p></div>
+          <div className="card empty-state" style={{ minHeight: '300px' }}>
+            <Loader2 className="animate-spin" size={40} style={{ color: 'var(--primary-accent)', marginBottom: '1rem' }} />
+            <p className="card-eyebrow">Loading invoice database...</p>
+          </div>
         ) : (
           <>
-            {/* Stats */}
-            <div className="admin-stats-grid">
-              <div className="admin-stat-card">
-                <div className="stat-icon-box blue"><FileText size={24} /></div>
-                <div className="stat-info"><h3>{invoices.length}</h3><p>TOTAL INVOICES</p></div>
-              </div>
-              <div className="admin-stat-card">
-                <div className="stat-icon-box green"><CheckCircle size={24} /></div>
-                <div className="stat-info">
-                  <h3>${invoices.filter(i => i.status === 'Paid').reduce((s, i) => s + i.totalAmount, 0).toFixed(0)}</h3>
-                  <p>COLLECTED</p>
+            {/* Stats Overview */}
+            <div className="grid-stats" style={{ marginBottom: '2.5rem', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
+              <div className="card p-7" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                <div className="stat-card-icon-wrap"><FileText size={24} /></div>
+                <div>
+                  <span className="card-eyebrow">Total Invoices</span>
+                  <h3 className="card-title" style={{ fontSize: '1.75rem', marginTop: '0.25rem' }}>{invoices.length}</h3>
                 </div>
               </div>
-              <div className="admin-stat-card">
-                <div className="stat-icon-box red"><XCircle size={24} /></div>
-                <div className="stat-info">
-                  <h3>${invoices.filter(i => i.status !== 'Paid').reduce((s, i) => s + i.totalAmount, 0).toFixed(0)}</h3>
-                  <p>OUTSTANDING</p>
+
+              <div className="card p-7" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                <div className="stat-card-icon-wrap" style={{ color: '#22c55e', backgroundColor: 'rgba(34, 197, 94, 0.1)' }}><CheckCircle size={24} /></div>
+                <div>
+                  <span className="card-eyebrow">Collected Revenue</span>
+                  <h3 className="card-title" style={{ fontSize: '1.75rem', marginTop: '0.25rem', color: '#22c55e' }}>
+                    ${invoices.filter(i => i.status === 'Paid').reduce((s, i) => s + i.totalAmount, 0).toFixed(0)}
+                  </h3>
                 </div>
               </div>
-              <div className="admin-stat-card">
-                <div className="stat-icon-box purple"><Clock size={24} /></div>
-                <div className="stat-info"><h3>{invoices.filter(i => i.status === 'Pending').length}</h3><p>PENDING</p></div>
+
+              <div className="card p-7" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                <div className="stat-card-icon-wrap" style={{ color: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)' }}><XCircle size={24} /></div>
+                <div>
+                  <span className="card-eyebrow">Outstanding Receivables</span>
+                  <h3 className="card-title" style={{ fontSize: '1.75rem', marginTop: '0.25rem', color: '#ef4444' }}>
+                    ${invoices.filter(i => i.status !== 'Paid').reduce((s, i) => s + i.totalAmount, 0).toFixed(0)}
+                  </h3>
+                </div>
+              </div>
+
+              <div className="card p-7" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                <div className="stat-card-icon-wrap" style={{ color: '#f59e0b', backgroundColor: 'rgba(245, 158, 11, 0.1)' }}><Clock size={24} /></div>
+                <div>
+                  <span className="card-eyebrow">Pending Settlement</span>
+                  <h3 className="card-title" style={{ fontSize: '1.75rem', marginTop: '0.25rem', color: '#f59e0b' }}>
+                    {invoices.filter(i => i.status === 'Pending').length}
+                  </h3>
+                </div>
               </div>
             </div>
 
-            {/* Controls */}
-            <div className="admin-controls-card">
-              <div className="search-and-filters">
-                <div className="search-box-wrapper">
-                  <Search size={18} className="search-icon" />
-                  <input type="text" placeholder="Search by invoice #, customer..." value={searchQuery} onChange={e => { setSearchQuery(e.target.value); setPage(1); }} />
+            {/* Controls Filter Area */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem', marginBottom: '2rem' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', flex: 1, minWidth: '280px' }}>
+                <div className="admin-search" style={{ flex: 1, minWidth: '240px' }}>
+                  <Search size={18} className="admin-search-icon" />
+                  <input 
+                    type="text" 
+                    className="admin-search-input"
+                    placeholder="Search by invoice #, customer..." 
+                    value={searchQuery} 
+                    onChange={e => { setSearchQuery(e.target.value); setPage(1); }} 
+                  />
                 </div>
-                <div className="filter-select-group">
-                  <select value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setPage(1); }}>
-                    <option value="All">All Statuses</option>
-                    <option value="Paid">Paid</option>
-                    <option value="Unpaid">Unpaid</option>
-                    <option value="Pending">Pending</option>
-                  </select>
-                </div>
+                <select 
+                  className="form-select" 
+                  style={{ padding: '0.75rem 1.25rem', borderRadius: '0.75rem' }} 
+                  value={statusFilter} 
+                  onChange={e => { setStatusFilter(e.target.value); setPage(1); }}
+                >
+                  <option value="All">All Statuses</option>
+                  <option value="Paid">Paid</option>
+                  <option value="Unpaid">Unpaid</option>
+                  <option value="Pending">Pending</option>
+                </select>
               </div>
-              <button className="create-staff-btn" onClick={() => { resetModal(); setShowModal(true); }}>
-                <PlusCircle size={18} /><span>New Sales Invoice</span>
+
+              <button className="btn-primary" style={{ padding: '0.85rem 1.5rem', borderRadius: '0.75rem' }} onClick={() => { resetModal(); setShowModal(true); }}>
+                <PlusCircle size={18} />
+                <span>New Sales Invoice</span>
               </button>
             </div>
 
-            {/* Table */}
-            <div className="users-table-card">
-              <h2>Invoice History</h2>
-              <div className="table-responsive-wrapper">
-                <table className="users-dashboard-table">
-                  <thead>
+            {/* Table Listing */}
+            <div className="card p-7" style={{ overflowX: 'auto' }}>
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Invoice #</th>
+                    <th>Customer Name</th>
+                    <th>Associated Vehicle</th>
+                    <th>Sale Date</th>
+                    <th>Total Amount</th>
+                    <th>Settlement Status</th>
+                    <th>Invoice Dispatch</th>
+                    <th style={{ textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paginated.length === 0 ? (
                     <tr>
-                      <th>Invoice #</th>
-                      <th>Customer</th>
-                      <th>Vehicle</th>
-                      <th>Date</th>
-                      <th>Total</th>
-                      <th>Status</th>
-                      <th>Email</th>
-                      <th style={{ textAlign: 'right' }}>Actions</th>
+                      <td colSpan={8} style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>
+                        No invoices found matching the filters.
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {paginated.length === 0 ? (
-                      <tr><td colSpan={8} className="table-empty-row">No invoices found.</td></tr>
-                    ) : paginated.map(inv => (
-                      <React.Fragment key={inv.id}>
-                        <tr>
-                          <td><strong style={{ fontFamily: 'monospace' }}>{inv.invoiceNumber}</strong></td>
-                          <td>
-                            <div className="meta-text">
-                              <span className="username">{inv.customer.username}</span>
-                              <span className="user-id">{inv.customer.email}</span>
-                            </div>
-                          </td>
-                          <td style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                            {inv.vehicle ? `${inv.vehicle.vehicleNumber} – ${inv.vehicle.make} ${inv.vehicle.model}` : '—'}
-                          </td>
-                          <td style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                            {new Date(inv.saleDate).toLocaleDateString()}
-                          </td>
-                          <td><strong style={{ color: '#22c55e' }}>${inv.totalAmount.toFixed(2)}</strong></td>
-                          <td>
-                            <span style={{
-                              ...STATUS_COLORS[inv.status],
-                              padding: '0.3rem 0.8rem', borderRadius: '20px',
-                              fontSize: '0.75rem', fontWeight: 700,
-                              display: 'inline-flex', alignItems: 'center', gap: '0.3rem'
-                            }}>
-                              <StatusIcon s={inv.status} />{inv.status}
-                            </span>
-                          </td>
-                          <td>
-                            <span style={{ fontSize: '0.75rem', color: inv.emailSent ? '#22c55e' : 'var(--text-secondary)' }}>
-                              {inv.emailSent ? '✓ Sent' : 'Not sent'}
-                            </span>
-                          </td>
-                          <td style={{ textAlign: 'right' }}>
-                            <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-                              <button className="toggle-status-btn activate"
-                                onClick={() => setExpandedId(expandedId === inv.id ? null : inv.id)}
-                                style={{ borderColor: 'rgba(255,255,255,0.15)', color: '#fff' }}>
-                                <ChevronDown size={13} /><span>Items</span>
+                  ) : paginated.map(inv => (
+                    <React.Fragment key={inv.id}>
+                      <tr>
+                        <td><strong style={{ fontFamily: 'monospace', color: 'var(--text-primary)' }}>{inv.invoiceNumber}</strong></td>
+                        <td>
+                          <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{inv.customer.username}</span>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{inv.customer.email}</span>
+                          </div>
+                        </td>
+                        <td style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                          {inv.vehicle ? `${inv.vehicle.vehicleNumber} – ${inv.vehicle.make} ${inv.vehicle.model}` : '—'}
+                        </td>
+                        <td style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                          {new Date(inv.saleDate).toLocaleDateString()}
+                        </td>
+                        <td><strong style={{ color: '#22c55e' }}>${inv.totalAmount.toFixed(2)}</strong></td>
+                        <td>
+                          <span className={`admin-badge ${STATUS_COLORS[inv.status] || 'admin-badge-pending'}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                            <StatusIcon s={inv.status} />
+                            {inv.status}
+                          </span>
+                        </td>
+                        <td>
+                          <span style={{ fontSize: '0.75rem', color: inv.emailSent ? '#22c55e' : 'var(--text-secondary)', fontWeight: 600 }}>
+                            {inv.emailSent ? '✓ Sent to Email' : 'Pending Send'}
+                          </span>
+                        </td>
+                        <td style={{ textAlign: 'right' }}>
+                          <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'flex-end' }}>
+                            <button 
+                              className="admin-action-btn"
+                              onClick={() => setExpandedId(expandedId === inv.id ? null : inv.id)}
+                            >
+                              <ChevronDown size={13} />
+                              <span>Items</span>
+                            </button>
+                            {inv.status !== 'Paid' && (
+                              <button 
+                                className="admin-action-btn"
+                                onClick={() => handleStatusChange(inv.id, 'Paid')}
+                                style={{ borderColor: '#22c55e', color: '#22c55e' }}
+                              >
+                                Mark Paid
                               </button>
-                              {inv.status !== 'Paid' && (
-                                <button className="toggle-status-btn activate"
-                                  onClick={() => handleStatusChange(inv.id, 'Paid')}
-                                  style={{ borderColor: '#22c55e', color: '#22c55e' }}>
-                                  Mark Paid
-                                </button>
-                              )}
-                              {!inv.emailSent && (
-                                <button className="toggle-status-btn activate"
-                                  onClick={() => handleSendEmail(inv.id)}
-                                  style={{ borderColor: 'rgba(255,255,255,0.15)', color: '#fff' }}>
-                                  <Mail size={13} /><span>Email</span>
-                                </button>
+                            )}
+                            {!inv.emailSent && (
+                              <button 
+                                className="admin-action-btn"
+                                onClick={() => handleSendEmail(inv.id)}
+                              >
+                                <Mail size={13} />
+                                <span>Email</span>
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                      {expandedId === inv.id && (
+                        <tr>
+                          <td colSpan={8} style={{ background: 'rgba(255,255,255,0.01)', padding: 0 }}>
+                            <div style={{ padding: '1.5rem', borderTop: '1px solid var(--borders)', borderBottom: '1px solid var(--borders)' }}>
+                              <table className="admin-table" style={{ fontSize: '0.85rem' }}>
+                                <thead>
+                                  <tr>
+                                    <th>Part Description</th>
+                                    <th style={{ textAlign: 'center' }}>Quantity</th>
+                                    <th style={{ textAlign: 'center' }}>Unit Price</th>
+                                    <th style={{ textAlign: 'right' }}>Subtotal</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {inv.items.map(item => (
+                                    <tr key={item.id}>
+                                      <td>{item.partName}</td>
+                                      <td style={{ textAlign: 'center', fontWeight: 'bold' }}>{item.quantity} units</td>
+                                      <td style={{ textAlign: 'center' }}>${item.unitPrice.toFixed(2)}</td>
+                                      <td style={{ textAlign: 'right', fontWeight: 700 }}>${(item.quantity * item.unitPrice).toFixed(2)}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                              {inv.notes && (
+                                <p style={{ marginTop: '1rem', fontSize: '0.8rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+                                  Note: {inv.notes}
+                                </p>
                               )}
                             </div>
                           </td>
                         </tr>
-                        {expandedId === inv.id && (
-                          <tr>
-                            <td colSpan={8} style={{ background: '#050505', padding: 0 }}>
-                              <div style={{ padding: '0.8rem 1.5rem', borderTop: '1px solid var(--borders)' }}>
-                                <table style={{ width: '100%', fontSize: '0.83rem' }}>
-                                  <thead>
-                                    <tr style={{ color: 'var(--text-secondary)' }}>
-                                      <th style={{ padding: '0.4rem', textAlign: 'left', fontWeight: 600 }}>Part</th>
-                                      <th style={{ padding: '0.4rem', textAlign: 'center', fontWeight: 600 }}>Qty</th>
-                                      <th style={{ padding: '0.4rem', textAlign: 'center', fontWeight: 600 }}>Unit Price</th>
-                                      <th style={{ padding: '0.4rem', textAlign: 'right', fontWeight: 600 }}>Subtotal</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {inv.items.map(item => (
-                                      <tr key={item.id} style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-                                        <td style={{ padding: '0.4rem' }}>{item.partName}</td>
-                                        <td style={{ padding: '0.4rem', textAlign: 'center' }}>{item.quantity}</td>
-                                        <td style={{ padding: '0.4rem', textAlign: 'center' }}>${item.unitPrice.toFixed(2)}</td>
-                                        <td style={{ padding: '0.4rem', textAlign: 'right', fontWeight: 700 }}>${(item.quantity * item.unitPrice).toFixed(2)}</td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                                {inv.notes && <p style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Note: {inv.notes}</p>}
-                              </div>
-                            </td>
-                          </tr>
-                        )}
-                      </React.Fragment>
-                    ))}
-                  </tbody>
-                </table>
+                      )}
+                    </React.Fragment>
+                  ))}
+                </tbody>
+              </table>
+
+              <div style={{ marginTop: '1.5rem' }}>
+                <Pagination currentPage={page} totalPages={totalPages} onPageChange={p => { setPage(p); setExpandedId(null); }} pageSize={PAGE_SIZE} totalItems={filtered.length} />
               </div>
-              <Pagination currentPage={page} totalPages={totalPages} onPageChange={p => { setPage(p); setExpandedId(null); }} pageSize={PAGE_SIZE} totalItems={filtered.length} />
             </div>
           </>
         )}
@@ -338,26 +389,32 @@ export default function StaffSalesPage() {
 
       {/* New Invoice Modal */}
       {showModal && (
-        <div className="staff-modal-overlay">
-          <div className="staff-modal-content" style={{ maxWidth: '700px' }}>
-            <div className="modal-header">
-              <h2>Create Sales Invoice</h2>
-              <button className="close-modal-btn" onClick={() => setShowModal(false)}><X size={18} /></button>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 100, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
+          <div className="card p-9" style={{ width: '100%', maxWidth: '38rem', maxHeight: '90vh', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+              <h2 className="card-title" style={{ fontSize: '1.5rem' }}>Create Sales Invoice</h2>
+              <button style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.5rem', cursor: 'pointer' }} onClick={() => setShowModal(false)}>&times;</button>
             </div>
-            {modalError && <div className="modal-error-message">{modalError}</div>}
-            <form onSubmit={handleCreateInvoice} className="modal-form">
+            
+            {modalError && (
+              <div style={{ color: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)', padding: '0.75rem 1rem', borderRadius: '0.75rem', fontSize: '0.85rem', marginBottom: '1.5rem', border: '1px solid rgba(239,68,68,0.2)' }}>
+                {modalError}
+              </div>
+            )}
+
+            <form onSubmit={handleCreateInvoice} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div className="modal-form-group">
-                  <label>Invoice Number *</label>
-                  <div className="modal-input-wrapper">
-                    <FileText size={16} className="modal-input-icon" />
-                    <input type="text" placeholder="SI-2026-001" value={iNumber} onChange={e => setINumber(e.target.value)} required />
-                  </div>
+                <div>
+                  <label className="card-eyebrow" style={{ display: 'block', marginBottom: '0.5rem' }}>Invoice Number *</label>
+                  <input type="text" className="form-input" placeholder="e.g. SI-2026-001" value={iNumber} onChange={e => setINumber(e.target.value)} required />
                 </div>
-                <div className="modal-form-group">
-                  <label>Customer *</label>
-                  <select value={iCustomerId} onChange={e => { setICustomerId(parseInt(e.target.value)); setIVehicleId(0); }}
-                    style={{ width: '100%', backgroundColor: '#060606', border: '1px solid var(--borders)', borderRadius: '6px', padding: '0.75rem', color: '#fff', fontSize: '0.9rem' }}>
+                <div>
+                  <label className="card-eyebrow" style={{ display: 'block', marginBottom: '0.5rem' }}>Customer *</label>
+                  <select 
+                    className="form-select"
+                    value={iCustomerId} 
+                    onChange={e => { setICustomerId(parseInt(e.target.value)); setIVehicleId(0); }}
+                  >
                     <option value={0}>Select customer...</option>
                     {customers.map(c => <option key={c.id} value={c.id}>{c.username} ({c.email})</option>)}
                   </select>
@@ -365,10 +422,13 @@ export default function StaffSalesPage() {
               </div>
 
               {selectedCustomer && selectedCustomer.vehicles.length > 0 && (
-                <div className="modal-form-group">
-                  <label>Vehicle (optional)</label>
-                  <select value={iVehicleId} onChange={e => setIVehicleId(parseInt(e.target.value))}
-                    style={{ width: '100%', backgroundColor: '#060606', border: '1px solid var(--borders)', borderRadius: '6px', padding: '0.75rem', color: '#fff', fontSize: '0.9rem' }}>
+                <div>
+                  <label className="card-eyebrow" style={{ display: 'block', marginBottom: '0.5rem' }}>Associated Vehicle (Optional)</label>
+                  <select 
+                    className="form-select"
+                    value={iVehicleId} 
+                    onChange={e => setIVehicleId(parseInt(e.target.value))}
+                  >
                     <option value={0}>No specific vehicle</option>
                     {selectedCustomer.vehicles.map(v => <option key={v.id} value={v.id}>{v.vehicleNumber} – {v.make} {v.model}</option>)}
                   </select>
@@ -376,26 +436,67 @@ export default function StaffSalesPage() {
               )}
 
               {/* Line Items */}
-              <div className="modal-form-group">
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                  <label style={{ margin: 0 }}>Parts *</label>
+              <div style={{ borderTop: '1px solid var(--borders)', paddingTop: '1.25rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <label className="card-eyebrow" style={{ margin: 0 }}>Itemized Parts *</label>
                   <button type="button" onClick={addItemRow} style={{ background: 'none', border: 'none', color: 'var(--primary-accent)', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                    <PlusCircle size={14} /> Add Line
+                    <PlusCircle size={14} /> Add Line Item
                   </button>
                 </div>
-                <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', maxHeight: '200px', overflowY: 'auto', paddingRight: '0.3rem' }}>
                   {iItems.map((item, i) => (
-                    <div key={i} style={{ display: 'grid', gridTemplateColumns: '3fr 0.8fr 1fr auto', gap: '0.5rem', marginBottom: '0.5rem', alignItems: 'center' }}>
-                      <select value={item.partId} onChange={e => handlePartSelect(i, parseInt(e.target.value))}
-                        style={{ backgroundColor: '#060606', border: '1px solid var(--borders)', borderRadius: '6px', padding: '0.5rem', color: '#fff', fontSize: '0.83rem' }}>
+                    <div key={i} style={{ display: 'grid', gridTemplateColumns: '3fr 0.8fr 1.2fr auto', gap: '0.5rem', alignItems: 'center' }}>
+                      <select 
+                        value={item.partId} 
+                        onChange={e => handlePartSelect(i, parseInt(e.target.value))}
+                        style={{
+                          backgroundColor: 'var(--main-bg)',
+                          border: '1px solid var(--borders)',
+                          borderRadius: '0.5rem',
+                          padding: '0.6rem',
+                          color: '#fff',
+                          fontSize: '0.85rem'
+                        }}
+                      >
                         <option value={0}>Select part...</option>
                         {parts.map(p => <option key={p.id} value={p.id}>{p.name} (Stock: {p.stockQuantity})</option>)}
                       </select>
-                      <input type="number" min="1" value={item.quantity} onChange={e => updateItem(i, 'quantity', parseInt(e.target.value) || 1)}
-                        style={{ backgroundColor: '#060606', border: '1px solid var(--borders)', borderRadius: '6px', padding: '0.5rem', color: '#fff', fontSize: '0.83rem', textAlign: 'center' }} />
-                      <input type="number" step="0.01" min="0" value={item.unitPrice || ''} onChange={e => updateItem(i, 'unitPrice', parseFloat(e.target.value) || 0)}
-                        style={{ backgroundColor: '#060606', border: '1px solid var(--borders)', borderRadius: '6px', padding: '0.5rem', color: '#fff', fontSize: '0.83rem', textAlign: 'center' }}
-                        placeholder="Price" />
+                      
+                      <input 
+                        type="number" 
+                        min="1" 
+                        value={item.quantity} 
+                        onChange={e => updateItem(i, 'quantity', parseInt(e.target.value) || 1)}
+                        style={{
+                          backgroundColor: 'var(--main-bg)',
+                          border: '1px solid var(--borders)',
+                          borderRadius: '0.5rem',
+                          padding: '0.6rem',
+                          color: '#fff',
+                          fontSize: '0.85rem',
+                          textAlign: 'center'
+                        }} 
+                      />
+
+                      <input 
+                        type="number" 
+                        step="0.01" 
+                        min="0" 
+                        value={item.unitPrice || ''} 
+                        onChange={e => updateItem(i, 'unitPrice', parseFloat(e.target.value) || 0)}
+                        style={{
+                          backgroundColor: 'var(--main-bg)',
+                          border: '1px solid var(--borders)',
+                          borderRadius: '0.5rem',
+                          padding: '0.6rem',
+                          color: '#fff',
+                          fontSize: '0.85rem',
+                          textAlign: 'center'
+                        }} 
+                        placeholder="Price" 
+                      />
+
                       <button type="button" onClick={() => removeItemRow(i)} disabled={iItems.length === 1}
                         style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', opacity: iItems.length === 1 ? 0.3 : 1 }}>
                         <X size={16} />
@@ -405,20 +506,25 @@ export default function StaffSalesPage() {
                 </div>
               </div>
 
-              <div className="modal-form-group">
-                <label>Notes</label>
-                <textarea value={iNotes} onChange={e => setINotes(e.target.value)} placeholder="Optional note for this invoice..."
-                  style={{ width: '100%', minHeight: '60px', backgroundColor: '#060606', border: '1px solid var(--borders)', borderRadius: '6px', padding: '0.7rem', color: '#fff', fontSize: '0.9rem', fontFamily: 'inherit' }} />
+              <div>
+                <label className="card-eyebrow" style={{ display: 'block', marginBottom: '0.5rem' }}>Invoice Notes</label>
+                <textarea 
+                  className="form-input"
+                  value={iNotes} 
+                  onChange={e => setINotes(e.target.value)} 
+                  placeholder="Optional service notes or guidelines for this invoice..."
+                  style={{ minHeight: '60px', fontFamily: 'inherit' }} 
+                />
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.02)', padding: '0.8rem 1rem', borderRadius: '6px', border: '1px solid var(--borders)' }}>
-                <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 700 }}>INVOICE TOTAL</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '0.75rem', border: '1px solid var(--borders)' }}>
+                <span className="card-eyebrow" style={{ fontWeight: 700, margin: 0 }}>INVOICE TOTAL</span>
                 <strong style={{ fontSize: '1.4rem', color: '#22c55e' }}>${invoiceTotal.toFixed(2)}</strong>
               </div>
 
-              <div className="modal-actions">
-                <button type="button" className="modal-cancel-btn" onClick={() => setShowModal(false)}>Cancel</button>
-                <button type="submit" className="modal-submit-btn" disabled={modalLoading}>
+              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
+                <button type="button" className="btn-secondary" style={{ flex: 1, padding: '0.85rem' }} onClick={() => setShowModal(false)}>Cancel</button>
+                <button type="submit" className="btn-primary" style={{ flex: 1, padding: '0.85rem' }} disabled={modalLoading}>
                   {modalLoading ? 'Creating...' : 'Create Invoice'}
                 </button>
               </div>

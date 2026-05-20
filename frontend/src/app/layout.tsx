@@ -17,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${oswald.variable} font-sans`}>{children}</body>
+      <body className={`${inter.variable} ${oswald.variable}`}>{children}</body>
     </html>
   )
 }

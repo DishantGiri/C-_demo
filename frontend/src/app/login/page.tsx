@@ -52,17 +52,17 @@ export default function Login() {
         <p>Login to your account</p>
       </div>
 
-      {error && <div style={{ color: '#F22635', marginBottom: '1rem', textAlign: 'center', fontSize: '0.85rem' }}>{error}</div>}
+      {error && <div className="auth-error">{error}</div>}
 
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Email Address</label>
-          <div className="input-wrapper">
-            <Mail className="input-icon" />
-            <input 
-              type="email" 
-              placeholder="Enter your email" 
-              className="auth-input" 
+      <form onSubmit={handleSubmit} className="auth-form">
+        <div className="auth-field">
+          <label className="auth-label">Email Address</label>
+          <div className="auth-input-wrap">
+            <Mail className="auth-input-icon" size={18} />
+            <input
+              type="email"
+              placeholder="Enter your email"
+              className="auth-input"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -70,35 +70,34 @@ export default function Login() {
           </div>
         </div>
 
-        <div className="form-group">
-          <label>Password</label>
-          <div className="input-wrapper">
-            <Lock className="input-icon" />
-            <input 
-              type={showPassword ? "text" : "password"} 
-              placeholder="Enter your password" 
-              className="auth-input" 
+        <div className="auth-field">
+          <label className="auth-label">Password</label>
+          <div className="auth-input-wrap">
+            <Lock className="auth-input-icon" size={18} />
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Enter your password"
+              className="auth-input"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            {showPassword ? 
-              <EyeOff className="input-icon-right" onClick={() => setShowPassword(false)} /> : 
-              <Eye className="input-icon-right" onClick={() => setShowPassword(true)} />
-            }
+            <button type="button" className="auth-eye-btn" onClick={() => setShowPassword(!showPassword)}>
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
           </div>
         </div>
 
-        <div className="auth-options">
-          <Link href="#" className="forgot-password">Forgot Password?</Link>
+        <div className="auth-forgot">
+          <Link href="#" className="auth-link">Forgot Password?</Link>
         </div>
 
-        <button type="submit" className="auth-btn" disabled={loading}>
-          {loading ? 'Logging in...' : <>Log In <ArrowRight size={20} /></>}
+        <button type="submit" className="auth-submit-btn" disabled={loading}>
+          {loading ? 'Logging in...' : <><span>Log In</span> <ArrowRight size={20} /></>}
         </button>
 
-        <div className="auth-footer-text">
-          Don't have an account? <Link href="/register">Sign Up</Link>
+        <div className="auth-switch">
+          Don't have an account? <Link href="/register" className="auth-link">Sign Up</Link>
         </div>
       </form>
     </AuthLayout>

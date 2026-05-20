@@ -1,6 +1,7 @@
 using BackendApi.Data;
 using BackendApi.DTOs;
 using BackendApi.Models;
+using BackendApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,10 +15,12 @@ namespace BackendApi.Controllers
     public class SalesController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IEmailService _emailService;
 
-        public SalesController(AppDbContext context)
+        public SalesController(AppDbContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         // GET /api/sales — all invoices (paginated on frontend)
@@ -182,7 +185,7 @@ namespace BackendApi.Controllers
             return Ok(new { invoice.Id, invoice.Status });
         }
 
-        // POST /api/sales/{id}/send-email — mark email as sent (stub for SMTP)
+        // POST /api/sales/{id}/send-email — send real invoice via SMTP
         [HttpPost("{id}/send-email")]
         public async Task<IActionResult> SendEmail(int id)
         {
@@ -193,15 +196,130 @@ namespace BackendApi.Controllers
 
             if (invoice == null) return NotFound("Invoice not found.");
 
-            // Mark as sent (real SMTP can be wired later)
-            invoice.EmailSent = true;
-            await _context.SaveChangesAsync();
-
-            return Ok(new
+            try
             {
-                Message = $"Invoice #{invoice.InvoiceNumber} marked as emailed to {invoice.Customer!.Email}.",
-                EmailSent = true
-            });
+                // Generate a beautiful premium-styled responsive HTML email invoice template
+                var itemsRowsHtml = new System.Text.StringBuilder();
+                foreach (var item in invoice.Items)
+                {
+                    itemsRowsHtml.Append($@"
+                        <tr>
+                            <td style=""padding: 12px; border-bottom: 1px solid #e0e0e0; color: #333333; font-weight: 500;"">{item.Part?.Name ?? "Unknown Part"}</td>
+                            <td style=""padding: 12px; border-bottom: 1px solid #e0e0e0; color: #555555; text-align: center;"">{item.Quantity}</td>
+                            <td style=""padding: 12px; border-bottom: 1px solid #e0e0e0; color: #555555; text-align: right;"">${item.UnitPrice:F2}</td>
+                            <td style=""padding: 12px; border-bottom: 1px solid #e0e0e0; color: #333333; text-align: right; font-weight: 700;"">${(item.Quantity * item.UnitPrice):F2}</td>
+                        </tr>");
+                }
+
+                string loyaltySavingsSection = "";
+                if (invoice.DiscountPercent > 0)
+                {
+                    loyaltySavingsSection = $@"
+                        <tr style=""background-color: #f0fdf4;"">
+                            <td colspan=""3"" style=""padding: 12px; text-align: right; color: #166534; font-weight: bold;"">Loyalty Program Discount ({invoice.DiscountPercent}%):</td>
+                            <td style=""padding: 12px; text-align: right; color: #166534; font-weight: bold;"">-${invoice.DiscountAmount:F2}</td>
+                        </tr>";
+                }
+
+                var htmlContent = $@"
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset=""utf-8"">
+                        <style>
+                            body {{ font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f7f7f9; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }}
+                            .container {{ max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #e8e8e8; }}
+                            .header {{ background: linear-gradient(135deg, #1e1e24 0%, #121214 100%); padding: 35px 25px; text-align: center; border-bottom: 4px solid #d61f2c; }}
+                            .header h1 {{ color: #ffffff; margin: 0; font-size: 26px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; }}
+                            .header p {{ color: #a0a0ab; margin: 5px 0 0; font-size: 13px; font-weight: 500; }}
+                            .content {{ padding: 30px 25px; }}
+                            .greeting {{ font-size: 16px; color: #333333; margin-bottom: 20px; font-weight: bold; }}
+                            .details-table {{ width: 100%; border-collapse: collapse; margin: 25px 0; font-size: 14px; }}
+                            .details-table th {{ background-color: #f4f4f7; padding: 12px; color: #555555; text-align: left; font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em; border-bottom: 2px solid #e2e2e6; }}
+                            .summary-card {{ background-color: #fafafa; border: 1px solid #ededed; border-radius: 12px; padding: 20px; margin-top: 25px; }}
+                            .summary-row {{ display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; color: #555555; }}
+                            .summary-total {{ display: flex; justify-content: space-between; margin-top: 15px; padding-top: 15px; border-top: 2px dashed #e2e2e6; font-size: 18px; font-weight: 800; color: #d61f2c; }}
+                            .footer {{ background-color: #fafafa; padding: 20px; text-align: center; font-size: 12px; color: #7f7f8d; border-top: 1px solid #ededed; }}
+                            .status-paid {{ color: #22c55e; font-weight: bold; text-transform: uppercase; border: 1px solid #22c55e; padding: 2px 8px; border-radius: 4px; display: inline-block; font-size: 11px; }}
+                            .status-unpaid {{ color: #ef4444; font-weight: bold; text-transform: uppercase; border: 1px solid #ef4444; padding: 2px 8px; border-radius: 4px; display: inline-block; font-size: 11px; }}
+                        </style>
+                    </head>
+                    <body>
+                        <div class=""container"">
+                            <div class=""header"">
+                                <h1>AutoCraft Garage</h1>
+                                <p>OFFICIAL DIGITAL INVOICE</p>
+                            </div>
+                            <div class=""content"">
+                                <div class=""greeting"">Hello {invoice.Customer?.Username ?? "Valued Customer"},</div>
+                                <p style=""color: #555555; font-size: 14px; line-height: 1.6; margin: 0;"">
+                                    Thank you for choosing AutoCraft Garage for your mechanical and parts services. Your invoice <strong>#{invoice.InvoiceNumber}</strong> has been compiled and is details are listed below:
+                                </p>
+                                
+                                <div style=""margin: 20px 0; font-size: 13px; color: #777777;"">
+                                    <strong>Billing Date:</strong> {invoice.SaleDate.ToLocalTime():yyyy-MM-dd HH:mm}<br/>
+                                    <strong>Invoice Status:</strong> <span class=""{(invoice.Status == "Paid" ? "status-paid" : "status-unpaid")}"">{invoice.Status}</span>
+                                </div>
+
+                                <table class=""details-table"">
+                                    <thead>
+                                        <tr>
+                                            <th style=""border-bottom: 2px solid #e2e2e6;"">Part Description</th>
+                                            <th style=""text-align: center; border-bottom: 2px solid #e2e2e6;"">Qty</th>
+                                            <th style=""text-align: right; border-bottom: 2px solid #e2e2e6;"">Unit Price</th>
+                                            <th style=""text-align: right; border-bottom: 2px solid #e2e2e6;"">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {itemsRowsHtml}
+                                        <tr>
+                                            <td colspan=""3"" style=""padding: 12px; text-align: right; color: #555555; font-weight: bold; border-top: 2px solid #e2e2e6;"">Subtotal:</td>
+                                            <td style=""padding: 12px; text-align: right; color: #333333; font-weight: bold; border-top: 2px solid #e2e2e6;"">${invoice.Subtotal:F2}</td>
+                                        </tr>
+                                        {loyaltySavingsSection}
+                                        <tr style=""border-top: 2px dashed #e2e2e6; background-color: #fafafa;"">
+                                            <td colspan=""3"" style=""padding: 14px; text-align: right; color: #d61f2c; font-size: 18px; font-weight: 800;"">Total Amount Paid:</td>
+                                            <td style=""padding: 14px; text-align: right; color: #d61f2c; font-size: 18px; font-weight: 800;"">${invoice.TotalAmount:F2}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                {(string.IsNullOrWhiteSpace(invoice.Notes) ? "" : $@"
+                                    <div style=""background-color: #fdf2f2; border-left: 4px solid #d61f2c; padding: 15px; border-radius: 4px; margin-top: 20px;"">
+                                        <strong style=""color: #d61f2c; font-size: 13px; display: block; margin-bottom: 4px;"">TECHNICIAN REMARKS:</strong>
+                                        <span style=""font-size: 13px; color: #555555; line-height: 1.5; font-style: italic;"">""{invoice.Notes}""</span>
+                                    </div>")}
+
+                            </div>
+                            <div class=""footer"">
+                                <strong style=""color: #333333;"">AutoCraft Garage Ltd.</strong><br/>
+                                100 Main Motorway, Automotive Plaza<br/>
+                                Support Contact: support@autocraft.com | +1 800-GARAGE
+                            </div>
+                        </div>
+                    </body>
+                    </html>";
+
+                // Dispatch the real email using the configured SMTP server and App password
+                await _emailService.SendEmailAsync(
+                    invoice.Customer!.Email, 
+                    $"AutoCraft Garage Invoice Receipt - #{invoice.InvoiceNumber}", 
+                    htmlContent
+                );
+
+                invoice.EmailSent = true;
+                await _context.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    Message = $"Invoice #{invoice.InvoiceNumber} successfully dispatched via email to {invoice.Customer!.Email}.",
+                    EmailSent = true
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Email delivery failed: {ex.Message}");
+            }
         }
 
         // ───── REPORTS ─────

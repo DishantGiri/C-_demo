@@ -28,31 +28,18 @@ export default function Register() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-
     const pwdErr = validatePassword(password);
     if (pwdErr) { setPasswordError(pwdErr); return; }
-
-    if (password !== confirmPassword) {
-      setConfirmPasswordError('Passwords do not match');
-      return;
-    }
-
+    if (password !== confirmPassword) { setConfirmPasswordError('Passwords do not match'); return; }
     const phoneRegex = /^\d{10}$/;
-    if (!phoneRegex.test(phone)) {
-      setError('Phone number must be exactly 10 digits.');
-      return;
-    }
-
+    if (!phoneRegex.test(phone)) { setError('Phone number must be exactly 10 digits.'); return; }
     setLoading(true);
-
     try {
-      // Send phoneNumber to the backend now that the attribute exists
       const response = await fetch('http://localhost:5215/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: fullName, email, phoneNumber: phone, password })
       });
-
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem('token', data.token);
@@ -80,107 +67,84 @@ export default function Register() {
         <p>Join us and get your car serviced</p>
       </div>
 
-      {error && <div style={{ color: '#F22635', marginBottom: '1rem', textAlign: 'center', fontSize: '0.85rem' }}>{error}</div>}
+      {error && <div className="auth-error">{error}</div>}
 
-      <form onSubmit={handleSubmit}>
-        <div className="form-row">
-          <div className="form-group">
-            <label>Full Name</label>
-            <div className="input-wrapper">
-              <User className="input-icon" />
-              <input 
-                type="text" 
-                placeholder="Enter your full name" 
-                className="auth-input" 
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                required
-              />
-            </div>
+      <form onSubmit={handleSubmit} className="auth-form">
+        <div className="auth-field">
+          <label className="auth-label">Full Name</label>
+          <div className="auth-input-wrap">
+            <User className="auth-input-icon" size={18} />
+            <input type="text" placeholder="Enter your full name" className="auth-input"
+              value={fullName} onChange={(e) => setFullName(e.target.value)} required />
           </div>
-          <div className="form-group">
-            <label>Email Address</label>
-            <div className="input-wrapper">
-              <Mail className="input-icon" />
-              <input 
-                type="email" 
-                placeholder="Enter your email" 
-                className="auth-input" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
+        </div>
+        <div className="auth-field">
+          <label className="auth-label">Email Address</label>
+          <div className="auth-input-wrap">
+            <Mail className="auth-input-icon" size={18} />
+            <input type="email" placeholder="Enter your email" className="auth-input"
+              value={email} onChange={(e) => setEmail(e.target.value)} required />
           </div>
         </div>
 
-        <div className="form-group">
-          <label>Phone Number</label>
-          <div className="input-wrapper">
-            <Phone className="input-icon" />
-            <input 
-              type="tel" 
-              placeholder="Enter your 10-digit phone number" 
-              className="auth-input" 
+        <div className="auth-field">
+          <label className="auth-label">Phone Number</label>
+          <div className="auth-input-wrap">
+            <Phone className="auth-input-icon" size={18} />
+            <input type="tel" placeholder="Enter your 10-digit phone number" className="auth-input"
               value={phone}
               onChange={(e) => {
-                // Only allow numbers to be typed
                 const value = e.target.value.replace(/\D/g, '');
                 if (value.length <= 10) setPhone(value);
               }}
-              required
-              pattern="\d{10}"
-              title="Phone number must be exactly 10 digits"
-            />
+              required pattern="\d{10}" title="Phone number must be exactly 10 digits" />
           </div>
         </div>
 
-        <div className="form-group">
-          <label>Password</label>
-          <div className="input-wrapper">
-            <Lock className="input-icon" />
-            <input 
-              type={showPassword ? "text" : "password"} 
-              placeholder="Create a password" 
+        <div className="auth-field">
+          <label className="auth-label">Password</label>
+          <div className="auth-input-wrap">
+            <Lock className="auth-input-icon" size={18} />
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Create a password"
               className={`auth-input${passwordError ? ' input-error' : ''}`}
               value={password}
               onChange={(e) => { setPassword(e.target.value); setPasswordError(validatePassword(e.target.value)); }}
               required
             />
-            {showPassword ? 
-              <EyeOff className="input-icon-right" onClick={() => setShowPassword(false)} /> : 
-              <Eye className="input-icon-right" onClick={() => setShowPassword(true)} />
-            }
+            <button type="button" className="auth-eye-btn" onClick={() => setShowPassword(!showPassword)}>
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
           </div>
-          {passwordError && <p className="field-error-msg">{passwordError}</p>}
+          {passwordError && <p className="auth-field-error">{passwordError}</p>}
         </div>
 
-        <div className="form-group">
-          <label>Confirm Password</label>
-          <div className="input-wrapper">
-            <Lock className="input-icon" />
-            <input 
-              type={showConfirmPassword ? "text" : "password"} 
-              placeholder="Confirm your password" 
+        <div className="auth-field">
+          <label className="auth-label">Confirm Password</label>
+          <div className="auth-input-wrap">
+            <Lock className="auth-input-icon" size={18} />
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              placeholder="Confirm your password"
               className={`auth-input${confirmPasswordError ? ' input-error' : ''}`}
               value={confirmPassword}
               onChange={(e) => { setConfirmPassword(e.target.value); setConfirmPasswordError(e.target.value !== password ? 'Passwords do not match.' : ''); }}
               required
             />
-            {showConfirmPassword ? 
-              <EyeOff className="input-icon-right" onClick={() => setShowConfirmPassword(false)} /> : 
-              <Eye className="input-icon-right" onClick={() => setShowConfirmPassword(true)} />
-            }
+            <button type="button" className="auth-eye-btn" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+              {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
           </div>
-          {confirmPasswordError && <p className="field-error-msg">{confirmPasswordError}</p>}
+          {confirmPasswordError && <p className="auth-field-error">{confirmPasswordError}</p>}
         </div>
 
-        <button type="submit" className="auth-btn" disabled={loading}>
-          {loading ? 'Creating Account...' : <>Create Account <ArrowRight size={20} /></>}
+        <button type="submit" className="auth-submit-btn" disabled={loading}>
+          {loading ? 'Creating Account...' : <><span>Create Account</span> <ArrowRight size={20} /></>}
         </button>
 
-        <div className="auth-footer-text">
-          Already have an account? <Link href="/login">Log In</Link>
+        <div className="auth-switch">
+          Already have an account? <Link href="/login" className="auth-link">Log In</Link>
         </div>
       </form>
     </AuthLayout>

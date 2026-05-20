@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeft, Loader2, Shield, TrendingUp,
-  AlertTriangle, DollarSign, FileText, Calendar
+  AlertTriangle, DollarSign, FileText, Calendar, X
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -102,184 +102,161 @@ export default function AdminFinancialReportsPage() {
   const yearsList = Array.from({ length: 5 }, (_, i) => currentYear - i);
 
   return (
-    <div className="admin-portal-wrapper">
-      <header className="admin-portal-header">
-        <div className="admin-header-container">
-          <div className="admin-logo-group">
-            <Link href="/" className="admin-back-btn">
-              <ArrowLeft size={18} />
+    <div className="admin-page">
+      <header className="page-header" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '2.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>
+            <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '0.5rem', textDecoration: 'none' }}>
+              <ArrowLeft size={16} />
               <span>Back to Site</span>
             </Link>
-            <h1>Redline Auto Garage <span className="red-badge">Admin Panel</span></h1>
+            <h1 className="page-header-title">Financial Intelligence</h1>
+            <p className="page-header-text">Analyze gross turnover, deduct client loyalty perks, and download net income sheets.</p>
           </div>
           
-          <div style={{ display: 'flex', gap: '1.2rem', alignItems: 'center', flexWrap: 'wrap' }}>
-            <Link href="/admin/users" style={{ color: 'var(--text-secondary)', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>
+          <div style={{ display: 'flex', gap: '1rem', backgroundColor: 'var(--secondary-bg)', padding: '0.5rem 1rem', borderRadius: '1rem', border: '1px solid var(--borders)' }}>
+            <Link href="/admin/users" style={{ color: 'var(--text-secondary)', fontWeight: 600, textDecoration: 'none', fontSize: '0.85rem' }}>
               Users
             </Link>
-            <span style={{ color: 'rgba(255,255,255,0.15)' }}>|</span>
-            <Link href="/admin/parts" style={{ color: 'var(--text-secondary)', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>
+            <span style={{ color: 'var(--borders)' }}>|</span>
+            <Link href="/admin/parts" style={{ color: 'var(--text-secondary)', fontWeight: 600, textDecoration: 'none', fontSize: '0.85rem' }}>
               Parts & Invoices
             </Link>
-            <span style={{ color: 'rgba(255,255,255,0.15)' }}>|</span>
-            <Link href="/admin/vendors" style={{ color: 'var(--text-secondary)', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>
+            <span style={{ color: 'var(--borders)' }}>|</span>
+            <Link href="/admin/vendors" style={{ color: 'var(--text-secondary)', fontWeight: 600, textDecoration: 'none', fontSize: '0.85rem' }}>
               Vendors
             </Link>
-            <span style={{ color: 'rgba(255,255,255,0.15)' }}>|</span>
-            <Link href="/admin/reports" style={{ color: 'var(--primary-accent)', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>
+            <span style={{ color: 'var(--borders)' }}>|</span>
+            <Link href="/admin/reports" style={{ color: 'var(--primary-accent)', fontWeight: 800, textDecoration: 'none', fontSize: '0.85rem' }}>
               Financial Reports
             </Link>
           </div>
 
-          <div className="admin-user-info">
-            <Shield size={18} className="shield-icon" />
-            <span>Administrator Portal</span>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', color: 'var(--primary-accent)', fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+            <Shield size={18} />
+            <span>Admin Portal</span>
           </div>
         </div>
       </header>
 
-      <main className="admin-main-container">
+      <main>
         {error ? (
-          <div className="admin-error-card">
-            <h2>Access Denied</h2>
-            <p>{error}</p>
-            <Link href="/login" className="admin-login-redirect">Go to Login</Link>
+          <div className="card empty-state" style={{ maxWidth: '480px', margin: '4rem auto' }}>
+            <div className="empty-state-icon"><X size={40} style={{ color: 'var(--primary-accent)' }} /></div>
+            <h2 className="empty-state-title">Access Denied</h2>
+            <p className="empty-state-text" style={{ marginBottom: '1.5rem' }}>{error}</p>
+            <Link href="/login" className="btn-primary" style={{ padding: '0.75rem 1.5rem', textDecoration: 'none' }}>Go to Login</Link>
           </div>
         ) : (
           <>
             {/* Header / Report Filter controls */}
-            <div className="admin-controls-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', flexWrap: 'wrap', gap: '1rem' }}>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  {(['daily', 'monthly', 'yearly'] as const).map(p => (
-                    <button
-                      key={p}
-                      onClick={() => setPeriod(p)}
-                      style={{
-                        padding: '0.6rem 1.2rem',
-                        borderRadius: '6px',
-                        border: 'none',
-                        backgroundColor: period === p ? 'var(--primary-accent)' : '#0f0f0f',
-                        color: '#fff',
-                        fontWeight: period === p ? 800 : 500,
-                        fontSize: '0.85rem',
-                        cursor: 'pointer',
-                        textTransform: 'capitalize',
-                        transition: 'all 0.2s'
-                      }}
-                    >
-                      {p} Report
-                    </button>
-                  ))}
-                </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }}>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                {(['daily', 'monthly', 'yearly'] as const).map(p => (
+                  <button
+                    key={p}
+                    onClick={() => setPeriod(p)}
+                    className={period === p ? 'btn-primary' : 'btn-secondary'}
+                    style={{
+                      padding: '0.6rem 1.2rem',
+                      borderRadius: '0.75rem',
+                      fontSize: '0.85rem',
+                      textTransform: 'capitalize',
+                    }}
+                  >
+                    {p} Report
+                  </button>
+                ))}
+              </div>
 
-                <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
-                  {period !== 'yearly' && (
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <select
-                        value={selectedYear}
-                        onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                        style={{
-                          backgroundColor: '#0a0a0a',
-                          color: '#fff',
-                          border: '1px solid var(--borders)',
-                          padding: '0.5rem 1rem',
-                          borderRadius: '6px',
-                          outline: 'none',
-                          fontWeight: 600
-                        }}
-                      >
-                        {yearsList.map(y => (
-                          <option key={y} value={y}>{y}</option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
+              <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
+                {period !== 'yearly' && (
+                  <select
+                    className="form-select"
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      borderRadius: '0.5rem',
+                      fontWeight: 600
+                    }}
+                  >
+                    {yearsList.map(y => (
+                      <option key={y} value={y}>{y} Year</option>
+                    ))}
+                  </select>
+                )}
 
-                  {period === 'daily' && (
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <select
-                        value={selectedMonth}
-                        onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
-                        style={{
-                          backgroundColor: '#0a0a0a',
-                          color: '#fff',
-                          border: '1px solid var(--borders)',
-                          padding: '0.5rem 1rem',
-                          borderRadius: '6px',
-                          outline: 'none',
-                          fontWeight: 600
-                        }}
-                      >
-                        {monthsList.map(m => (
-                          <option key={m.value} value={m.value}>{m.name}</option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                </div>
+                {period === 'daily' && (
+                  <select
+                    className="form-select"
+                    value={selectedMonth}
+                    onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      borderRadius: '0.5rem',
+                      fontWeight: 600
+                    }}
+                  >
+                    {monthsList.map(m => (
+                      <option key={m.value} value={m.value}>{m.name}</option>
+                    ))}
+                  </select>
+                )}
               </div>
             </div>
 
             {loading ? (
-              <div className="admin-loading-screen" style={{ marginTop: '3rem' }}>
-                <Loader2 className="loading-spinner" />
-                <p>Generating financial reports...</p>
+              <div className="card empty-state" style={{ minHeight: '300px' }}>
+                <Loader2 className="animate-spin" size={40} style={{ color: 'var(--primary-accent)', marginBottom: '1rem' }} />
+                <p className="card-eyebrow">Generating financial statements...</p>
               </div>
             ) : (
               <>
                 {/* Stats Dashboard Grid */}
-                <div className="admin-stats-grid" style={{ marginTop: '1.5rem' }}>
-                  <div className="admin-stat-card">
-                    <div className="stat-icon-box blue">
-                      <DollarSign size={24} />
-                    </div>
-                    <div className="stat-info">
-                      <h3>${totalGrossRevenue.toFixed(2)}</h3>
-                      <p>GROSS REVENUE</p>
+                <div className="grid-stats" style={{ marginBottom: '2.5rem', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
+                  <div className="card p-7" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                    <div className="stat-card-icon-wrap" style={{ color: 'var(--text-primary)', backgroundColor: 'rgba(255,255,255,0.05)' }}><DollarSign size={24} /></div>
+                    <div>
+                      <span className="card-eyebrow">Gross Turn-Over</span>
+                      <h3 className="card-title" style={{ fontSize: '1.75rem', marginTop: '0.25rem' }}>${totalGrossRevenue.toFixed(2)}</h3>
                     </div>
                   </div>
 
-                  <div className="admin-stat-card">
-                    <div className="stat-icon-box purple">
-                      <Calendar size={24} />
-                    </div>
-                    <div className="stat-info">
-                      <h3>${totalDiscounts.toFixed(2)}</h3>
-                      <p>LOYALTY DISCOUNTS</p>
+                  <div className="card p-7" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                    <div className="stat-card-icon-wrap" style={{ color: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)' }}><Calendar size={24} /></div>
+                    <div>
+                      <span className="card-eyebrow">Loyalty Deducted</span>
+                      <h3 className="card-title" style={{ fontSize: '1.75rem', marginTop: '0.25rem', color: '#ef4444' }}>${totalDiscounts.toFixed(2)}</h3>
                     </div>
                   </div>
 
-                  <div className="admin-stat-card">
-                    <div className="stat-icon-box green">
-                      <DollarSign size={24} />
-                    </div>
-                    <div className="stat-info">
-                      <h3>${totalNetRevenue.toFixed(2)}</h3>
-                      <p>NET REVENUE</p>
+                  <div className="card p-7" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                    <div className="stat-card-icon-wrap" style={{ color: '#22c55e', backgroundColor: 'rgba(34, 197, 94, 0.1)' }}><DollarSign size={24} /></div>
+                    <div>
+                      <span className="card-eyebrow">Net Revenue</span>
+                      <h3 className="card-title" style={{ fontSize: '1.75rem', marginTop: '0.25rem', color: '#22c55e' }}>${totalNetRevenue.toFixed(2)}</h3>
                     </div>
                   </div>
 
-                  <div className="admin-stat-card">
-                    <div className="stat-icon-box red">
-                      <FileText size={24} />
-                    </div>
-                    <div className="stat-info">
-                      <h3>{totalSalesCount}</h3>
-                      <p>INVOICES GENERATED</p>
+                  <div className="card p-7" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                    <div className="stat-card-icon-wrap"><FileText size={24} /></div>
+                    <div>
+                      <span className="card-eyebrow">Total Slips</span>
+                      <h3 className="card-title" style={{ fontSize: '1.75rem', marginTop: '0.25rem' }}>{totalSalesCount}</h3>
                     </div>
                   </div>
                 </div>
 
                 {/* Financial Table card */}
-                <div className="users-table-card" style={{ marginTop: '2rem' }}>
-                  <h2>Financial Summary Details</h2>
-                  <div className="table-responsive-wrapper">
-                    <table className="users-dashboard-table">
+                <div className="card p-7">
+                  <h2 className="card-title" style={{ fontSize: '1.25rem', marginBottom: '1.5rem' }}>Financial Summary Details</h2>
+                  <div style={{ overflowX: 'auto' }}>
+                    <table className="admin-table">
                       <thead>
                         <tr>
                           <th>Period / Timeframe</th>
-                          <th style={{ textAlign: 'right' }}>Invoices</th>
+                          <th style={{ textAlign: 'right' }}>Invoices Settled</th>
                           <th style={{ textAlign: 'right' }}>Gross Revenue</th>
                           <th style={{ textAlign: 'right' }}>Loyalty Discount</th>
                           <th style={{ textAlign: 'right' }}>Net Revenue</th>
@@ -288,7 +265,7 @@ export default function AdminFinancialReportsPage() {
                       <tbody>
                         {reportData.length === 0 ? (
                           <tr>
-                            <td colSpan={5} className="table-empty-row" style={{ textAlign: 'center', padding: '3rem' }}>
+                            <td colSpan={5} style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>
                               No financial records found for the selected parameters.
                             </td>
                           </tr>
@@ -308,14 +285,14 @@ export default function AdminFinancialReportsPage() {
                                 <td>
                                   <strong style={{ fontSize: '0.9rem', color: 'var(--primary-accent)' }}>{label}</strong>
                                 </td>
-                                <td style={{ textAlign: 'right', fontWeight: 600 }}>{item.count}</td>
-                                <td style={{ textAlign: 'right', color: '#94a3b8' }}>
+                                <td style={{ textAlign: 'right', fontWeight: 700 }}>{item.count} tickets</td>
+                                <td style={{ textAlign: 'right', color: 'var(--text-secondary)' }}>
                                   ${(item.revenue + item.discount).toFixed(2)}
                                 </td>
-                                <td style={{ textAlign: 'right', color: '#ef4444' }}>
+                                <td style={{ textAlign: 'right', color: '#ef4444', fontWeight: 600 }}>
                                   -${item.discount.toFixed(2)}
                                 </td>
-                                <td style={{ textAlign: 'right', color: '#22c55e', fontWeight: 700 }}>
+                                <td style={{ textAlign: 'right', color: '#22c55e', fontWeight: 900, fontSize: '0.95rem' }}>
                                   ${item.revenue.toFixed(2)}
                                 </td>
                               </tr>

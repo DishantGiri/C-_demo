@@ -118,188 +118,188 @@ export default function AdminVendorsPage() {
   );
 
   return (
-    <div className="admin-portal-wrapper">
+    <div className="admin-page">
       {/* Header */}
-      <header className="admin-portal-header">
-        <div className="admin-header-container">
-          <div className="admin-logo-group">
-            <Link href="/" className="admin-back-btn">
-              <ArrowLeft size={18} />
+      <header className="page-header" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '2.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>
+            <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '0.5rem', textDecoration: 'none' }}>
+              <ArrowLeft size={16} />
               <span>Back to Site</span>
             </Link>
-            <h1>Redline Auto Garage <span className="red-badge">Vendor Management</span></h1>
+            <h1 className="page-header-title">Vendor Relations</h1>
+            <p className="page-header-text">Manage wholesale parts suppliers, directory contacts, and physical shop addresses.</p>
           </div>
 
           {/* Sub-nav */}
-          <div style={{ display: 'flex', gap: '1.2rem', alignItems: 'center', flexWrap: 'wrap' }}>
-            <Link href="/admin/users" style={{ color: 'var(--text-secondary)', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>
+          <div style={{ display: 'flex', gap: '1rem', backgroundColor: 'var(--secondary-bg)', padding: '0.5rem 1rem', borderRadius: '1rem', border: '1px solid var(--borders)' }}>
+            <Link href="/admin/users" style={{ color: 'var(--text-secondary)', fontWeight: 600, textDecoration: 'none', fontSize: '0.85rem' }}>
               Users
             </Link>
-            <span style={{ color: 'rgba(255,255,255,0.15)' }}>|</span>
-            <Link href="/admin/parts" style={{ color: 'var(--text-secondary)', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>
+            <span style={{ color: 'var(--borders)' }}>|</span>
+            <Link href="/admin/parts" style={{ color: 'var(--text-secondary)', fontWeight: 600, textDecoration: 'none', fontSize: '0.85rem' }}>
               Parts & Invoices
             </Link>
-            <span style={{ color: 'rgba(255,255,255,0.15)' }}>|</span>
-            <Link href="/admin/vendors" style={{ color: 'var(--primary-accent)', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>
+            <span style={{ color: 'var(--borders)' }}>|</span>
+            <Link href="/admin/vendors" style={{ color: 'var(--primary-accent)', fontWeight: 800, textDecoration: 'none', fontSize: '0.85rem' }}>
               Vendors
             </Link>
-            <span style={{ color: 'rgba(255,255,255,0.15)' }}>|</span>
-            <Link href="/admin/reports" style={{ color: 'var(--text-secondary)', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>
+            <span style={{ color: 'var(--borders)' }}>|</span>
+            <Link href="/admin/reports" style={{ color: 'var(--text-secondary)', fontWeight: 600, textDecoration: 'none', fontSize: '0.85rem' }}>
               Financial Reports
             </Link>
           </div>
 
-          <div className="admin-user-info">
-            <Shield size={18} className="shield-icon" />
-            <span>Administrator Portal</span>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', color: 'var(--primary-accent)', fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+            <Shield size={18} />
+            <span>Admin Portal</span>
           </div>
         </div>
       </header>
 
-      <main className="admin-main-container">
+      <main>
         {error ? (
-          <div className="admin-error-card">
-            <h2>Access Restriction</h2>
-            <p>{error}</p>
-            <Link href="/login" className="admin-login-redirect">Go to Login</Link>
+          <div className="card empty-state" style={{ maxWidth: '480px', margin: '4rem auto' }}>
+            <div className="empty-state-icon"><X size={40} style={{ color: 'var(--primary-accent)' }} /></div>
+            <h2 className="empty-state-title">Access Restriction</h2>
+            <p className="empty-state-text" style={{ marginBottom: '1.5rem' }}>{error}</p>
+            <Link href="/login" className="btn-primary" style={{ padding: '0.75rem 1.5rem', textDecoration: 'none' }}>Go to Login</Link>
           </div>
         ) : loading ? (
-          <div className="admin-loading-screen">
-            <Loader2 className="loading-spinner" />
-            <p>Loading vendor directory...</p>
+          <div className="card empty-state" style={{ minHeight: '300px' }}>
+            <Loader2 className="animate-spin" size={40} style={{ color: 'var(--primary-accent)', marginBottom: '1rem' }} />
+            <p className="card-eyebrow">Loading vendor directory...</p>
           </div>
         ) : (
           <>
             {/* Stats */}
-            <div className="admin-stats-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
-              <div className="admin-stat-card">
-                <div className="stat-icon-box blue"><Building2 size={24} /></div>
-                <div className="stat-info">
-                  <h3>{vendors.length}</h3>
-                  <p>TOTAL VENDORS</p>
+            <div className="grid-stats" style={{ marginBottom: '2.5rem', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
+              <div className="card p-7" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                <div className="stat-card-icon-wrap" style={{ color: 'var(--primary-accent)', backgroundColor: 'rgba(214, 31, 44, 0.1)' }}><Building2 size={24} /></div>
+                <div>
+                  <span className="card-eyebrow">Registered Suppliers</span>
+                  <h3 className="card-title" style={{ fontSize: '1.75rem', marginTop: '0.25rem' }}>{vendors.length}</h3>
                 </div>
               </div>
-              <div className="admin-stat-card">
-                <div className="stat-icon-box green"><Mail size={24} /></div>
-                <div className="stat-info">
-                  <h3>{vendors.filter(v => v.email).length}</h3>
-                  <p>WITH EMAIL</p>
+              <div className="card p-7" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                <div className="stat-card-icon-wrap" style={{ color: '#22c55e', backgroundColor: 'rgba(34, 197, 94, 0.1)' }}><Mail size={24} /></div>
+                <div>
+                  <span className="card-eyebrow">Active Emails</span>
+                  <h3 className="card-title" style={{ fontSize: '1.75rem', marginTop: '0.25rem', color: '#22c55e' }}>{vendors.filter(v => v.email).length}</h3>
                 </div>
               </div>
-              <div className="admin-stat-card">
-                <div className="stat-icon-box purple"><Phone size={24} /></div>
-                <div className="stat-info">
-                  <h3>{vendors.filter(v => v.phoneNumber).length}</h3>
-                  <p>WITH PHONE</p>
+              <div className="card p-7" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                <div className="stat-card-icon-wrap" style={{ color: '#f59e0b', backgroundColor: 'rgba(245, 158, 11, 0.1)' }}><Phone size={24} /></div>
+                <div>
+                  <span className="card-eyebrow">Active Contacts</span>
+                  <h3 className="card-title" style={{ fontSize: '1.75rem', marginTop: '0.25rem', color: '#f59e0b' }}>{vendors.filter(v => v.phoneNumber).length}</h3>
                 </div>
               </div>
             </div>
 
-            {/* Controls */}
-            <div className="admin-controls-card">
-              <div className="search-and-filters">
-                <div className="search-box-wrapper">
-                  <Search size={18} className="search-icon" />
-                  <input
-                    type="text"
-                    placeholder="Search by name, contact or email..."
-                    value={searchQuery}
-                    onChange={e => setSearchQuery(e.target.value)}
-                  />
-                </div>
+            {/* Controls Filter Area */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem', marginBottom: '2rem' }}>
+              <div className="admin-search" style={{ flex: 1, minWidth: '240px' }}>
+                <Search size={18} className="admin-search-icon" />
+                <input
+                  type="text"
+                  className="admin-search-input"
+                  placeholder="Search by vendor name, contact person or email..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                />
               </div>
-              <button className="create-staff-btn" onClick={openCreate}>
+              <button className="btn-primary" style={{ padding: '0.85rem 1.5rem', borderRadius: '0.75rem' }} onClick={openCreate}>
                 <Plus size={18} />
                 <span>Add New Vendor</span>
               </button>
             </div>
 
-            {/* Table */}
-            <div className="users-table-card">
-              <h2>Vendor Directory ({filtered.length})</h2>
-              <div className="table-responsive-wrapper">
-                <table className="users-dashboard-table">
-                  <thead>
+            {/* Table Listing */}
+            <div className="card p-7" style={{ overflowX: 'auto' }}>
+              <h2 className="card-title" style={{ fontSize: '1.25rem', marginBottom: '1.5rem' }}>Vendor Directory ({filtered.length})</h2>
+              
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Vendor Name</th>
+                    <th>Contact Person</th>
+                    <th>Email Address</th>
+                    <th>Phone Number</th>
+                    <th>Business Address</th>
+                    <th style={{ textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.length === 0 ? (
                     <tr>
-                      <th>Vendor Name</th>
-                      <th>Contact Person</th>
-                      <th>Email</th>
-                      <th>Phone</th>
-                      <th>Address</th>
-                      <th style={{ textAlign: 'right' }}>Actions</th>
+                      <td colSpan={6} style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>
+                        {vendors.length === 0
+                          ? 'No vendors registered yet. Add your first vendor supplier above.'
+                          : 'No vendors match your search query.'}
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {filtered.length === 0 ? (
-                      <tr>
-                        <td colSpan={6} className="table-empty-row">
-                          {vendors.length === 0
-                            ? 'No vendors registered yet. Add your first vendor supplier above.'
-                            : 'No vendors match your search query.'}
+                  ) : (
+                    filtered.map(v => (
+                      <tr key={v.id}>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                            <div style={{ width: '2rem', height: '2rem', borderRadius: '50%', backgroundColor: 'rgba(214,31,44,0.1)', color: 'var(--primary-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '0.8rem' }}>
+                              {v.name.substring(0, 2).toUpperCase()}
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                              <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{v.name}</span>
+                              <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>ID: #{v.id}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-primary)', fontSize: '0.85rem' }}>
+                            <User2 size={14} style={{ color: 'var(--primary-accent)' }} />
+                            <span>{v.contactPerson || <span style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>—</span>}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-primary)', fontSize: '0.85rem' }}>
+                            <Mail size={14} style={{ color: 'var(--primary-accent)' }} />
+                            <span>{v.email || <span style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>—</span>}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-primary)', fontSize: '0.85rem' }}>
+                            <Phone size={14} style={{ color: 'var(--primary-accent)' }} />
+                            <span>{v.phoneNumber || <span style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>—</span>}</span>
+                          </div>
+                        </td>
+                        <td style={{ maxWidth: '200px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                          <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                            {v.address || '—'}
+                          </span>
+                        </td>
+                        <td style={{ textAlign: 'right' }}>
+                          <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'flex-end' }}>
+                            <button
+                              className="admin-action-btn"
+                              onClick={() => openEdit(v)}
+                            >
+                              <Edit3 size={14} />
+                              <span>Edit</span>
+                            </button>
+                            <button
+                              className="admin-action-btn"
+                              onClick={() => handleDelete(v.id, v.name)}
+                              style={{ borderColor: 'rgba(239, 68, 68, 0.2)', color: '#ef4444' }}
+                            >
+                              <Trash2 size={14} />
+                              <span>Delete</span>
+                            </button>
+                          </div>
                         </td>
                       </tr>
-                    ) : (
-                      filtered.map(v => (
-                        <tr key={v.id}>
-                          <td>
-                            <div className="user-profile-meta">
-                              <div className="avatar-initials staff">
-                                {v.name.substring(0, 2).toUpperCase()}
-                              </div>
-                              <div className="meta-text">
-                                <span className="username">{v.name}</span>
-                                <span className="user-id">ID: #{v.id}</span>
-                              </div>
-                            </div>
-                          </td>
-                          <td>
-                            <div className="email-meta">
-                              <User2 size={14} className="meta-icon" />
-                              <span>{v.contactPerson || <span style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>—</span>}</span>
-                            </div>
-                          </td>
-                          <td>
-                            <div className="email-meta">
-                              <Mail size={14} className="meta-icon" />
-                              <span>{v.email || <span style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>—</span>}</span>
-                            </div>
-                          </td>
-                          <td>
-                            <div className="phone-meta">
-                              <Phone size={14} className="meta-icon" />
-                              <span>{v.phoneNumber || <span style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>—</span>}</span>
-                            </div>
-                          </td>
-                          <td style={{ maxWidth: '200px' }}>
-                            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                              {v.address || '—'}
-                            </span>
-                          </td>
-                          <td style={{ textAlign: 'right' }}>
-                            <div style={{ display: 'flex', gap: '0.6rem', justifyContent: 'flex-end' }}>
-                              <button
-                                className="toggle-status-btn activate"
-                                onClick={() => openEdit(v)}
-                                style={{ borderColor: 'rgba(255,255,255,0.2)', color: '#fff' }}
-                              >
-                                <Edit3 size={14} />
-                                <span>Edit</span>
-                              </button>
-                              <button
-                                className="toggle-status-btn deactivate"
-                                onClick={() => handleDelete(v.id, v.name)}
-                              >
-                                <Trash2 size={14} />
-                                <span>Delete</span>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           </>
         )}
@@ -307,105 +307,92 @@ export default function AdminVendorsPage() {
 
       {/* Create / Edit Modal */}
       {showModal && (
-        <div className="staff-modal-overlay">
-          <div className="staff-modal-content">
-            <div className="modal-header">
-              <h2>{isEditing ? 'Edit Vendor Details' : 'Add New Vendor'}</h2>
-              <button className="close-modal-btn" onClick={() => { setShowModal(false); resetForm(); }}>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 100, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
+          <div className="card p-9" style={{ width: '100%', maxWidth: '34rem', maxHeight: '90vh', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+              <h2 className="card-title" style={{ fontSize: '1.5rem' }}>{isEditing ? 'Edit Vendor Details' : 'Add New Vendor'}</h2>
+              <button style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.5rem', cursor: 'pointer' }} onClick={() => { setShowModal(false); resetForm(); }}>
                 <X size={18} />
               </button>
             </div>
 
-            {modalError && <div className="modal-error-message">{modalError}</div>}
+            {modalError && (
+              <div style={{ color: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)', padding: '0.75rem 1rem', borderRadius: '0.75rem', fontSize: '0.85rem', marginBottom: '1.5rem', border: '1px solid rgba(239,68,68,0.2)' }}>
+                {modalError}
+              </div>
+            )}
 
-            <form onSubmit={handleSubmit} className="modal-form">
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               {/* Vendor Name */}
-              <div className="modal-form-group">
-                <label>Vendor / Company Name *</label>
-                <div className="modal-input-wrapper">
-                  <Building2 size={16} className="modal-input-icon" />
-                  <input
-                    type="text"
-                    placeholder="e.g. Bosch Global Parts Ltd."
-                    value={fName}
-                    onChange={e => setFName(e.target.value)}
-                    required
-                  />
-                </div>
+              <div>
+                <label className="card-eyebrow" style={{ display: 'block', marginBottom: '0.5rem' }}>Vendor / Company Name *</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="e.g. Bosch Global Parts Ltd."
+                  value={fName}
+                  onChange={e => setFName(e.target.value)}
+                  required
+                />
               </div>
 
               {/* Contact Person */}
-              <div className="modal-form-group">
-                <label>Contact Person</label>
-                <div className="modal-input-wrapper">
-                  <User2 size={16} className="modal-input-icon" />
-                  <input
-                    type="text"
-                    placeholder="e.g. John Smith"
-                    value={fContact}
-                    onChange={e => setFContact(e.target.value)}
-                  />
-                </div>
+              <div>
+                <label className="card-eyebrow" style={{ display: 'block', marginBottom: '0.5rem' }}>Contact Person Name</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="e.g. John Smith"
+                  value={fContact}
+                  onChange={e => setFContact(e.target.value)}
+                />
               </div>
 
               {/* Email + Phone — side by side */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div className="modal-form-group">
-                  <label>Email Address</label>
-                  <div className="modal-input-wrapper">
-                    <Mail size={16} className="modal-input-icon" />
-                    <input
-                      type="email"
-                      placeholder="vendor@example.com"
-                      value={fEmail}
-                      onChange={e => setFEmail(e.target.value)}
-                    />
-                  </div>
+                <div>
+                  <label className="card-eyebrow" style={{ display: 'block', marginBottom: '0.5rem' }}>Email Address</label>
+                  <input
+                    type="email"
+                    className="form-input"
+                    placeholder="vendor@example.com"
+                    value={fEmail}
+                    onChange={e => setFEmail(e.target.value)}
+                  />
                 </div>
-                <div className="modal-form-group">
-                  <label>Phone Number</label>
-                  <div className="modal-input-wrapper">
-                    <Phone size={16} className="modal-input-icon" />
-                    <input
-                      type="tel"
-                      placeholder="+1 555 000 0000"
-                      value={fPhone}
-                      onChange={e => setFPhone(e.target.value)}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Address */}
-              <div className="modal-form-group">
-                <label>Business Address</label>
-                <div className="modal-input-wrapper">
-                  <MapPin size={16} className="modal-input-icon" style={{ alignSelf: 'flex-start', marginTop: '0.75rem' }} />
-                  <textarea
-                    placeholder="Street, City, Country, ZIP"
-                    value={fAddress}
-                    onChange={e => setFAddress(e.target.value)}
-                    style={{
-                      width: '100%',
-                      minHeight: '80px',
-                      backgroundColor: '#060606',
-                      border: '1px solid var(--borders)',
-                      borderRadius: '6px',
-                      padding: '0.75rem',
-                      color: '#fff',
-                      fontSize: '0.9rem',
-                      fontFamily: 'inherit',
-                      resize: 'vertical'
-                    }}
+                <div>
+                  <label className="card-eyebrow" style={{ display: 'block', marginBottom: '0.5rem' }}>Phone Number</label>
+                  <input
+                    type="tel"
+                    className="form-input"
+                    placeholder="+1 555 000 0000"
+                    value={fPhone}
+                    onChange={e => setFPhone(e.target.value)}
                   />
                 </div>
               </div>
 
-              <div className="modal-actions">
-                <button type="button" className="modal-cancel-btn" onClick={() => { setShowModal(false); resetForm(); }}>
+              {/* Address */}
+              <div>
+                <label className="card-eyebrow" style={{ display: 'block', marginBottom: '0.5rem' }}>Business Address</label>
+                <textarea
+                  className="form-input"
+                  placeholder="Street, City, Country, ZIP"
+                  value={fAddress}
+                  onChange={e => setFAddress(e.target.value)}
+                  style={{
+                    minHeight: '80px',
+                    fontFamily: 'inherit',
+                    resize: 'vertical'
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
+                <button type="button" className="btn-secondary" style={{ flex: 1, padding: '0.85rem' }} onClick={() => { setShowModal(false); resetForm(); }}>
                   Cancel
                 </button>
-                <button type="submit" className="modal-submit-btn" disabled={modalLoading}>
+                <button type="submit" className="btn-primary" style={{ flex: 1, padding: '0.85rem' }} disabled={modalLoading}>
                   {modalLoading ? 'Saving...' : isEditing ? 'Update Vendor' : 'Add Vendor'}
                 </button>
               </div>
