@@ -182,6 +182,52 @@ textarea.form-input:focus {
 }
 .form-input:disabled { opacity: 0.5; cursor: not-allowed; }
 
+/* ---- Compact Form Elements for Grids/Tables ---- */
+.form-input-compact,
+.form-select-compact {
+  width: 100%;
+  min-width: 0;
+  background-color: var(--main-bg);
+  border: 1px solid var(--borders);
+  border-radius: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  display: block;
+}
+.form-input-compact::placeholder { color: #555; }
+.form-input-compact:focus,
+.form-select-compact:focus {
+  border-color: var(--primary-accent);
+  box-shadow: 0 0 0 3px rgba(214,31,44,0.15);
+}
+.form-input-compact:disabled,
+.form-select-compact:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Sleek custom scrollbars */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--borders);
+  border-radius: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-accent);
+}
+
 /* ---- Page header ---- */
 .page-header {
   padding-bottom: 2rem;
@@ -2803,5 +2849,191 @@ textarea.form-input:focus {
   border-color: var(--primary-accent) !important;
   box-shadow: 0 0 0 4px rgba(214, 31, 44, 0.15) !important;
 }
+
+
+/* Fix header row alignment on all Admin and Staff portal pages */
+.admin-page header.page-header > div:first-of-type,
+.page-header > div:first-of-type {
+  align-items: flex-end !important;
+}
+
+/* ========================================================
+   UNIVERSAL ENTERPRISE RESPONSIVENESS SHEET
+   Specially engineered to guarantee all views (Landing, Admin, 
+   Staff, Customer, Login) adjust flawlessly on all device sizes.
+   ======================================================== */
+
+@media (max-width: 1024px) {
+  /* 1. Sidebar layouts transform gracefully to drawer overlays */
+  .customer-sidebar {
+    width: 280px !important;
+  }
+  
+  .customer-main-wrapper {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* 2. Grid systems downscale gracefully */
+  .grid-main {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  /* [ignoring loop detection] */
+  
+  /* 3. Global containers padding adjustments */
+  .customer-content-area,
+  .admin-page,
+  .staff-page,
+  .app-container {
+    padding: 1rem !important;
+  }
+
+  /* 4. Table card container overflow-x scroll indicators */
+  .card, 
+  .card.p-7, 
+  div[style*="overflowX: auto"], 
+  div[style*="overflow-x: auto"] {
+    border-radius: 1.25rem !important;
+    padding: 1.25rem !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* 5. Fluid responsive headers */
+  .page-header-title {
+    font-size: 2rem !important;
+  }
+
+  .welcome-title {
+    font-size: 2.25rem !important;
+  }
+
+  /* 6. Form structures columns fold vertically */
+  form div[style*="display: grid"],
+  div[style*="display: grid"][style*="grid-template-columns"] {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+
+  /* 7. Flex row boxes align vertically on phones */
+  div[style*="display: flex"][style*="justify-content: space-between"],
+  div[style*="display: flex"][style*="flex-direction: row"],
+  .flex-wrap-mobile {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 1rem !important;
+  }
+
+  /* 8. Fix nested inline styles for details view rows */
+  div[style*="display: flex"][style*="justify-content: space-between"] > div {
+    text-align: left !important;
+  }
+
+  /* 9. Buttons automatically take full-width on mobile */
+  .btn,
+  .navbar-cta-btn,
+  .hero-cta-btn,
+  .btn-primary,
+  .btn-secondary {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 0.85rem 1.25rem !important;
+  }
+
+  /* 10. Landing Page mobile navbar link ribbon fallback (instead of completely hiding) */
+  .navbar {
+    flex-wrap: wrap !important;
+    gap: 1rem !important;
+    padding: 1rem 4% !important;
+  }
+
+  .navbar-cta-group {
+    width: 100% !important;
+    justify-content: space-between !important;
+    gap: 0.75rem !important;
+  }
+
+  .navbar-links {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    width: 100% !important;
+    gap: 0.75rem !important;
+    justify-content: center !important;
+    background: rgba(255,255,255,0.03) !important;
+    padding: 0.5rem !important;
+    border-radius: 0.5rem !important;
+  }
+
+  .navbar-links a {
+    font-size: 0.7rem !important;
+    padding: 4px 6px !important;
+  }
+
+  /* 11. Hero section content spacing */
+  .hero-container {
+    flex-direction: column-reverse !important;
+    text-align: center !important;
+    padding: 3rem 1rem !important;
+  }
+
+  .hero-content h1 {
+    font-size: 2.25rem !important;
+    line-height: 1.1 !important;
+  }
+
+  .hero-image-wrapper {
+    margin-bottom: 2rem !important;
+  }
+
+  .hero-car-img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* 12. Service history items flex wrap and alignment */
+  .card div[style*="display: flex"][style*="justify-content: space-between"][style*="align-items: center"] {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 1.25rem !important;
+  }
+
+  .card div[style*="display: flex"][style*="justify-content: space-between"][style*="align-items: center"] > div[style*="display: flex"] {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.75rem !important;
+  }
+
+  .card div[style*="display: flex"][style*="justify-content: space-between"][style*="align-items: center"] div[style*="text-align: right"] {
+    text-align: left !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* 13. Dynamic text size compression on tiny cellphones */
+  .page-header-title {
+    font-size: 1.75rem !important;
+  }
+  
+  .welcome-title {
+    font-size: 1.85rem !important;
+  }
+
+  /* 14. Pagination footer adjustment on tiny screens */
+  div[style*="justify-content: space-between"][style*="align-items: center"] {
+    flex-direction: column !important;
+    gap: 1rem !important;
+    text-align: center !important;
+  }
+  
+  div[style*="justify-content: space-between"][style*="align-items: center"] > span {
+    display: block !important;
+    margin-bottom: 0.5rem !important;
+  }
+}
+
 
 

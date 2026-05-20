@@ -437,72 +437,77 @@ export default function StaffSalesPage() {
 
               {/* Line Items */}
               <div style={{ borderTop: '1px solid var(--borders)', paddingTop: '1.25rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
                   <label className="card-eyebrow" style={{ margin: 0 }}>Itemized Parts *</label>
-                  <button type="button" onClick={addItemRow} style={{ background: 'none', border: 'none', color: 'var(--primary-accent)', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                  <button type="button" onClick={addItemRow} style={{ background: 'none', border: 'none', color: 'var(--primary-accent)', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3rem', transition: 'color 0.2s' }} className="add-item-btn">
                     <PlusCircle size={14} /> Add Line Item
                   </button>
                 </div>
-                
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', maxHeight: '200px', overflowY: 'auto', paddingRight: '0.3rem' }}>
-                  {iItems.map((item, i) => (
-                    <div key={i} style={{ display: 'grid', gridTemplateColumns: '3fr 0.8fr 1.2fr auto', gap: '0.5rem', alignItems: 'center' }}>
-                      <select 
-                        value={item.partId} 
-                        onChange={e => handlePartSelect(i, parseInt(e.target.value))}
-                        style={{
-                          backgroundColor: 'var(--main-bg)',
-                          border: '1px solid var(--borders)',
-                          borderRadius: '0.5rem',
-                          padding: '0.6rem',
-                          color: '#fff',
-                          fontSize: '0.85rem'
-                        }}
-                      >
-                        <option value={0}>Select part...</option>
-                        {parts.map(p => <option key={p.id} value={p.id}>{p.name} (Stock: {p.stockQuantity})</option>)}
-                      </select>
-                      
-                      <input 
-                        type="number" 
-                        min="1" 
-                        value={item.quantity} 
-                        onChange={e => updateItem(i, 'quantity', parseInt(e.target.value) || 1)}
-                        style={{
-                          backgroundColor: 'var(--main-bg)',
-                          border: '1px solid var(--borders)',
-                          borderRadius: '0.5rem',
-                          padding: '0.6rem',
-                          color: '#fff',
-                          fontSize: '0.85rem',
-                          textAlign: 'center'
-                        }} 
-                      />
 
-                      <input 
-                        type="number" 
-                        step="0.01" 
-                        min="0" 
-                        value={item.unitPrice || ''} 
-                        onChange={e => updateItem(i, 'unitPrice', parseFloat(e.target.value) || 0)}
-                        style={{
-                          backgroundColor: 'var(--main-bg)',
-                          border: '1px solid var(--borders)',
-                          borderRadius: '0.5rem',
-                          padding: '0.6rem',
-                          color: '#fff',
-                          fontSize: '0.85rem',
-                          textAlign: 'center'
-                        }} 
-                        placeholder="Price" 
-                      />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                  {/* Grid Table Headers */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '3.5fr 0.8fr 1.2fr auto', gap: '0.5rem', paddingRight: '1rem', alignItems: 'center' }}>
+                    <span className="card-eyebrow" style={{ color: 'var(--text-secondary)', fontSize: '0.6rem', letterSpacing: '0.15em', margin: 0 }}>Part Description</span>
+                    <span className="card-eyebrow" style={{ color: 'var(--text-secondary)', fontSize: '0.6rem', letterSpacing: '0.15em', textAlign: 'center', margin: 0 }}>Qty</span>
+                    <span className="card-eyebrow" style={{ color: 'var(--text-secondary)', fontSize: '0.6rem', letterSpacing: '0.15em', textAlign: 'center', margin: 0 }}>Unit Price</span>
+                    <span style={{ width: '16px' }}></span>
+                  </div>
+                  
+                  {/* Grid Rows Container */}
+                  <div className="custom-scrollbar" style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', maxHeight: '200px', overflowY: 'auto', overflowX: 'hidden', paddingRight: '0.3rem' }}>
+                    {iItems.map((item, i) => (
+                      <div key={i} style={{ display: 'grid', gridTemplateColumns: '3.5fr 0.8fr 1.2fr auto', gap: '0.5rem', alignItems: 'center' }}>
+                        <select 
+                          value={item.partId} 
+                          onChange={e => handlePartSelect(i, parseInt(e.target.value))}
+                          className="form-select-compact"
+                        >
+                          <option value={0}>Select part...</option>
+                          {parts.map(p => <option key={p.id} value={p.id}>{p.name} (Stock: {p.stockQuantity})</option>)}
+                        </select>
+                        
+                        <input 
+                          type="number" 
+                          min="1" 
+                          value={item.quantity} 
+                          onChange={e => updateItem(i, 'quantity', parseInt(e.target.value) || 1)}
+                          className="form-input-compact"
+                          style={{ textAlign: 'center' }}
+                        />
 
-                      <button type="button" onClick={() => removeItemRow(i)} disabled={iItems.length === 1}
-                        style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', opacity: iItems.length === 1 ? 0.3 : 1 }}>
-                        <X size={16} />
-                      </button>
-                    </div>
-                  ))}
+                        <input 
+                          type="number" 
+                          step="0.01" 
+                          min="0" 
+                          value={item.unitPrice || ''} 
+                          onChange={e => updateItem(i, 'unitPrice', parseFloat(e.target.value) || 0)}
+                          className="form-input-compact"
+                          style={{ textAlign: 'center' }}
+                          placeholder="Price" 
+                        />
+
+                        <button 
+                          type="button" 
+                          onClick={() => removeItemRow(i)} 
+                          disabled={iItems.length === 1}
+                          style={{ 
+                            background: 'none', 
+                            border: 'none', 
+                            color: '#ef4444', 
+                            cursor: 'pointer', 
+                            opacity: iItems.length === 1 ? 0.3 : 1, 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center', 
+                            padding: '0.25rem', 
+                            transition: 'color 0.2s' 
+                          }}
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 

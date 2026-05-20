@@ -892,9 +892,9 @@ export default function AdminPartsDashboard() {
                   </button>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', maxHeight: '200px', overflowY: 'auto', paddingRight: '0.3rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', maxHeight: '200px', overflowY: 'auto', overflowX: 'hidden', paddingRight: '0.3rem' }}>
                   {invoiceItems.map((item, idx) => (
-                    <div key={idx} style={{ display: 'grid', gridTemplateColumns: '2.5fr 1fr 1.2fr auto', gap: '0.6rem', alignItems: 'center' }}>
+                    <div key={idx} style={{ display: 'grid', gridTemplateColumns: '2.5fr 1fr 1.2fr auto', gap: '0.6rem', alignItems: 'center', width: '100%' }}>
                       <select
                         value={item.partId}
                         onChange={(e) => updateInvoiceItem(idx, 'partId', parseInt(e.target.value))}
@@ -904,7 +904,10 @@ export default function AdminPartsDashboard() {
                           borderRadius: '0.5rem',
                           padding: '0.6rem',
                           color: '#fff',
-                          fontSize: '0.85rem'
+                          fontSize: '0.85rem',
+                          width: '100%',
+                          maxWidth: '100%',
+                          boxSizing: 'border-box'
                         }}
                       >
                         <option value={0}>Select Part...</option>
@@ -926,7 +929,10 @@ export default function AdminPartsDashboard() {
                           padding: '0.6rem',
                           color: '#fff',
                           fontSize: '0.85rem',
-                          textAlign: 'center'
+                          textAlign: 'center',
+                          width: '100%',
+                          maxWidth: '100%',
+                          boxSizing: 'border-box'
                         }}
                         required
                       />
@@ -945,7 +951,10 @@ export default function AdminPartsDashboard() {
                           padding: '0.6rem',
                           color: '#fff',
                           fontSize: '0.85rem',
-                          textAlign: 'center'
+                          textAlign: 'center',
+                          width: '100%',
+                          maxWidth: '100%',
+                          boxSizing: 'border-box'
                         }}
                         required
                       />

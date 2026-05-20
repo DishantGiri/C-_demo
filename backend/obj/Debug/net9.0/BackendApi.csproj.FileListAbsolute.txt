@@ -259,3 +259,6 @@ C:\Users\dipsh\Desktop\dotnet final\C-_demo\backend\obj\Debug\net9.0\refint\Back
 C:\Users\dipsh\Desktop\dotnet final\C-_demo\backend\obj\Debug\net9.0\BackendApi.pdb
 C:\Users\dipsh\Desktop\dotnet final\C-_demo\backend\obj\Debug\net9.0\BackendApi.genruntimeconfig.cache
 C:\Users\dipsh\Desktop\dotnet final\C-_demo\backend\obj\Debug\net9.0\ref\BackendApi.dll
+C:\Users\dipsh\Desktop\dotnet final\C-_demo\backend\bin\Debug\net9.0\Swashbuckle.AspNetCore.Swagger.dll
+C:\Users\dipsh\Desktop\dotnet final\C-_demo\backend\bin\Debug\net9.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+C:\Users\dipsh\Desktop\dotnet final\C-_demo\backend\bin\Debug\net9.0\Swashbuckle.AspNetCore.SwaggerUI.dll

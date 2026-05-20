@@ -124,13 +124,11 @@ export default function StaffCustomersPage() {
     e.preventDefault();
     setModalError('');
     if (!fName || !fEmail || !fPhone) { setModalError('Name, email, and phone are required.'); return; }
-    
-    if (fPassword) {
-      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{6,}$/;
-      if (!passwordRegex.test(fPassword)) {
-        setModalError('Password must be at least 6 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character.');
-        return;
-      }
+    if (!fPassword) { setModalError('Password is required.'); return; }
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{6,}$/;
+    if (!passwordRegex.test(fPassword)) {
+      setModalError('Password must be at least 6 characters, with uppercase, lowercase, digit, and special character.');
+      return;
     }
 
     setModalLoading(true);
@@ -372,7 +370,7 @@ export default function StaffCustomersPage() {
       {/* Create Customer Modal */}
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 100, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
-          <div className="card p-9" style={{ width: '100%', maxWidth: '38rem', maxHeight: '90vh', overflowY: 'auto' }}>
+          <div className="card p-9" style={{ width: '100%', maxWidth: '38rem', maxHeight: '90vh', overflowY: 'auto', overflowX: 'hidden' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
               <h2 className="card-title" style={{ fontSize: '1.5rem' }}>Register New Customer</h2>
               <button style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.5rem', cursor: 'pointer' }} onClick={() => setShowModal(false)}>&times;</button>
@@ -402,8 +400,8 @@ export default function StaffCustomersPage() {
                   <input type="email" className="form-input" placeholder="customer@email.com" value={fEmail} onChange={e => setFEmail(e.target.value)} required />
                 </div>
                 <div>
-                  <label className="card-eyebrow" style={{ display: 'block', marginBottom: '0.5rem' }}>Password (Optional)</label>
-                  <input type="password" className="form-input" placeholder="Leave blank to auto-generate" value={fPassword} onChange={e => setFPassword(e.target.value)} />
+                  <label className="card-eyebrow" style={{ display: 'block', marginBottom: '0.5rem' }}>Password *</label>
+                  <input type="password" className="form-input" placeholder="Min 6 chars, upper, lower, digit, symbol" value={fPassword} onChange={e => setFPassword(e.target.value)} required />
                 </div>
               </div>
 
@@ -417,18 +415,26 @@ export default function StaffCustomersPage() {
                 </div>
                 
                 {vehicles.map((v, i) => (
-                  <div key={i} style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr 0.7fr auto', gap: '0.5rem', marginBottom: '0.5rem', alignItems: 'center' }}>
-                    <input type="text" placeholder="Plate No. *" value={v.vehicleNumber} onChange={e => updateVehicle(i, 'vehicleNumber', e.target.value)}
-                      style={{ backgroundColor: 'var(--main-bg)', border: '1px solid var(--borders)', borderRadius: '0.5rem', padding: '0.6rem', color: '#fff', fontSize: '0.85rem' }} />
-                    <input type="text" placeholder="Make *" value={v.make} onChange={e => updateVehicle(i, 'make', e.target.value)}
-                      style={{ backgroundColor: 'var(--main-bg)', border: '1px solid var(--borders)', borderRadius: '0.5rem', padding: '0.6rem', color: '#fff', fontSize: '0.85rem' }} />
-                    <input type="text" placeholder="Model *" value={v.model} onChange={e => updateVehicle(i, 'model', e.target.value)}
-                      style={{ backgroundColor: 'var(--main-bg)', border: '1px solid var(--borders)', borderRadius: '0.5rem', padding: '0.6rem', color: '#fff', fontSize: '0.85rem' }} />
-                    <input type="number" placeholder="Year" value={v.year} onChange={e => updateVehicle(i, 'year', e.target.value)}
-                      style={{ backgroundColor: 'var(--main-bg)', border: '1px solid var(--borders)', borderRadius: '0.5rem', padding: '0.6rem', color: '#fff', fontSize: '0.85rem', textAlign: 'center' }} />
-                    <button type="button" onClick={() => removeVehicleRow(i)} disabled={vehicles.length === 1} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', opacity: vehicles.length === 1 ? 0.3 : 1 }}>
-                      <X size={16} />
-                    </button>
+                  <div key={i} style={{ backgroundColor: 'var(--secondary-bg)', border: '1px solid var(--borders)', borderRadius: '0.75rem', padding: '0.75rem', marginBottom: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {/* Row 1: Plate / Make / Model */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem' }}>
+                      <input type="text" placeholder="Plate No. *" value={v.vehicleNumber} onChange={e => updateVehicle(i, 'vehicleNumber', e.target.value)}
+                        style={{ backgroundColor: 'var(--main-bg)', border: '1px solid var(--borders)', borderRadius: '0.5rem', padding: '0.6rem', color: '#fff', fontSize: '0.8rem', width: '100%', boxSizing: 'border-box' }} />
+                      <input type="text" placeholder="Make *" value={v.make} onChange={e => updateVehicle(i, 'make', e.target.value)}
+                        style={{ backgroundColor: 'var(--main-bg)', border: '1px solid var(--borders)', borderRadius: '0.5rem', padding: '0.6rem', color: '#fff', fontSize: '0.8rem', width: '100%', boxSizing: 'border-box' }} />
+                      <input type="text" placeholder="Model *" value={v.model} onChange={e => updateVehicle(i, 'model', e.target.value)}
+                        style={{ backgroundColor: 'var(--main-bg)', border: '1px solid var(--borders)', borderRadius: '0.5rem', padding: '0.6rem', color: '#fff', fontSize: '0.8rem', width: '100%', boxSizing: 'border-box' }} />
+                    </div>
+                    {/* Row 2: Year / Color / Delete */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '0.5rem', alignItems: 'center' }}>
+                      <input type="number" placeholder="Year" value={v.year} onChange={e => updateVehicle(i, 'year', e.target.value)}
+                        style={{ backgroundColor: 'var(--main-bg)', border: '1px solid var(--borders)', borderRadius: '0.5rem', padding: '0.6rem', color: '#fff', fontSize: '0.8rem', width: '100%', boxSizing: 'border-box' }} />
+                      <input type="text" placeholder="Color" value={v.color} onChange={e => updateVehicle(i, 'color', e.target.value)}
+                        style={{ backgroundColor: 'var(--main-bg)', border: '1px solid var(--borders)', borderRadius: '0.5rem', padding: '0.6rem', color: '#fff', fontSize: '0.8rem', width: '100%', boxSizing: 'border-box' }} />
+                      <button type="button" onClick={() => removeVehicleRow(i)} disabled={vehicles.length === 1} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', opacity: vehicles.length === 1 ? 0.3 : 1, display: 'flex', alignItems: 'center' }}>
+                        <X size={16} />
+                      </button>
+                    </div>
                   </div>
                 ))}
                 <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.3rem' }}>Rows with empty plate/make/model will be skipped.</p>
