@@ -25,6 +25,7 @@ export default function AdminVendorsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Modal state
   const [showModal, setShowModal] = useState(false);
@@ -111,11 +112,20 @@ export default function AdminVendorsPage() {
     } catch { alert('Network error.'); }
   };
 
+  // Reset page number on search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
   const filtered = vendors.filter(v =>
     v.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (v.email ?? '').toLowerCase().includes(searchQuery.toLowerCase()) ||
     (v.contactPerson ?? '').toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const paginatedVendors = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
     <div className="admin-page">
@@ -240,7 +250,7 @@ export default function AdminVendorsPage() {
                       </td>
                     </tr>
                   ) : (
-                    filtered.map(v => (
+                    paginatedVendors.map(v => (
                       <tr key={v.id}>
                         <td>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -300,6 +310,52 @@ export default function AdminVendorsPage() {
                   )}
                 </tbody>
               </table>
+
+              {/* Elegant Pagination Controls */}
+              {totalPages > 1 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '2rem', borderTop: '1px solid var(--borders)', paddingTop: '1.5rem' }}>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                    Showing <strong>{((currentPage - 1) * itemsPerPage) + 1}</strong> – <strong>{Math.min(currentPage * itemsPerPage, filtered.length)}</strong> of <strong>{filtered.length}</strong> supplier vendors
+                  </span>
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <button 
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage(1)}
+                      className="btn-secondary"
+                      style={{ padding: '0.5rem 1rem', borderRadius: '0.75rem', fontSize: '0.75rem' }}
+                    >
+                      First
+                    </button>
+                    <button 
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                      className="btn-secondary"
+                      style={{ padding: '0.5rem 1rem', borderRadius: '0.75rem', fontSize: '0.75rem' }}
+                    >
+                      Previous
+                    </button>
+                    <span style={{ fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: 700, padding: '0 0.75rem' }}>
+                      Page {currentPage} of {totalPages}
+                    </span>
+                    <button 
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                      className="btn-secondary"
+                      style={{ padding: '0.5rem 1rem', borderRadius: '0.75rem', fontSize: '0.75rem' }}
+                    >
+                      Next
+                    </button>
+                    <button 
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage(totalPages)}
+                      className="btn-secondary"
+                      style={{ padding: '0.5rem 1rem', borderRadius: '0.75rem', fontSize: '0.75rem' }}
+                    >
+                      Last
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </>
         )}

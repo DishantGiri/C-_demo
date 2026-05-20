@@ -7,6 +7,7 @@ export default function ServiceHistory() {
     const [history, setHistory] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
         const fetchHistory = async () => {
@@ -21,10 +22,19 @@ export default function ServiceHistory() {
         fetchHistory();
     }, []);
 
+    // Reset page number on search changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
+
     const filteredHistory = history.filter((inv: any) =>
         inv.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (inv.vehicle && inv.vehicle.vehicleNumber.toLowerCase().includes(searchTerm.toLowerCase()))
     );
+
+    const itemsPerPage = 6;
+    const totalPages = Math.ceil(filteredHistory.length / itemsPerPage);
+    const paginatedHistory = filteredHistory.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     const statusColor: any = { 'Paid': 'success', 'Pending': 'warning', 'Cancelled': 'danger' };
 
@@ -63,7 +73,8 @@ export default function ServiceHistory() {
                 </div>
             ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                    {filteredHistory.map((inv: any) => (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                    {paginatedHistory.map((inv: any) => (
                         <div key={inv.id} className="card p-7">
                             {/* Main Row */}
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -137,13 +148,60 @@ export default function ServiceHistory() {
                                     {inv.notes && (
                                         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.75rem 1rem', backgroundColor: 'rgba(214,31,44,0.05)', borderRadius: '0.75rem', marginTop: '0.5rem' }}>
                                             <Info size={16} style={{ color: 'var(--primary-accent)', flexShrink: 0, marginTop: '0.2rem' }} />
-                                            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Note: {inv.notes}</p>
+                                            <p style={{ fontSize: '0.8.75rem', color: 'var(--text-secondary)' }}>Note: {inv.notes}</p>
                                         </div>
                                     )}
                                 </div>
                             </div>
                         </div>
                     ))}
+                  </div>
+
+                  {/* Elegant Pagination Controls */}
+                  {totalPages > 1 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '2rem', borderTop: '1px solid var(--borders)', paddingTop: '1.5rem' }}>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                        Showing <strong>{((currentPage - 1) * itemsPerPage) + 1}</strong> – <strong>{Math.min(currentPage * itemsPerPage, filteredHistory.length)}</strong> of <strong>{filteredHistory.length}</strong> purchase records
+                      </span>
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        <button 
+                          disabled={currentPage === 1}
+                          onClick={() => setCurrentPage(1)}
+                          className="btn-secondary"
+                          style={{ padding: '0.5rem 1rem', borderRadius: '0.75rem', fontSize: '0.75rem', color: '#fff' }}
+                        >
+                          First
+                        </button>
+                        <button 
+                          disabled={currentPage === 1}
+                          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                          className="btn-secondary"
+                          style={{ padding: '0.5rem 1rem', borderRadius: '0.75rem', fontSize: '0.75rem', color: '#fff' }}
+                        >
+                          Previous
+                        </button>
+                        <span style={{ fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: 700, padding: '0 0.75rem' }}>
+                          Page {currentPage} of {totalPages}
+                        </span>
+                        <button 
+                          disabled={currentPage === totalPages}
+                          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                          className="btn-secondary"
+                          style={{ padding: '0.5rem 1rem', borderRadius: '0.75rem', fontSize: '0.75rem', color: '#fff' }}
+                        >
+                          Next
+                        </button>
+                        <button 
+                          disabled={currentPage === totalPages}
+                          onClick={() => setCurrentPage(totalPages)}
+                          className="btn-secondary"
+                          style={{ padding: '0.5rem 1rem', borderRadius: '0.75rem', fontSize: '0.75rem', color: '#fff' }}
+                        >
+                          Last
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
             )}
         </div>
